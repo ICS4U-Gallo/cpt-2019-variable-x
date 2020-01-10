@@ -1,8 +1,15 @@
 """
-Example Game
+Hack&/
+
+To-do:
+sort the highscores using bubble sort  
+recursively spawn enemies based on level
+GUI
 """
 
 import arcade
+import math
+import random
 
 # Constants
 SCREEN_WIDTH = 1000
@@ -13,6 +20,12 @@ SCREEN_TITLE = "Platformer Game"
 CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
 COIN_SCALING = 0.5
+
+SPRITE_SCALING_PLAYER = 0.5
+SPRITE_SCALING_ANTIVIRUS = 0.2
+ANTIVIRUS_COUNT = 5
+ANTIVIRUS_SPEED = 0.5
+SPRITE_SPEED = 0.5
 
 PLAYER_MOVEMENT_SPEED = 10
 GRAVITY = 2
@@ -26,6 +39,29 @@ BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 100
 
 
+class AntiVirus(arcade.Sprite):
+
+    def follow_sprite(self, player_sprite):
+        
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        if random.randrange(100) == 0:
+            start_x = self.center_x
+            start_y = self.center_y
+
+            # Get the destination location for the bullet
+            dest_x = player_sprite.center_x
+
+            # Calculate how to get the bullet to the destination
+            x_diff = dest_x - start_x
+            y_diff = dest_y - start_y
+            angle = math.atan2(y_diff, x_diff)
+
+            self.change_x = math.cos(angle) * COIN_SPEED
+            self.change_y = math.sin(angle) * COIN_SPEED
+        
+        
 class MyGame(arcade.Window):
     """
     Main application class.
@@ -53,11 +89,14 @@ class MyGame(arcade.Window):
         self.jump_sound = arcade.load_sound("SFX/EEnE Whoosh 8.wav")
 
         arcade.set_background_color(arcade.csscolor.BLACK)
+        
+        self.background = None
 
 
     def setup(self):
         """Set up the game here. Call this function to restart the game"""
 
+        self.background = arcade.load_texture("images/matrix.jpeg")
         # Used to keep track of our scrolling
         self.view_bottom = 0
         self.view_left = 0
@@ -69,6 +108,7 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.coin_list = arcade.SpriteList()
+        self.antivirus_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
         image_source = "images/boxCrate_double.png" 
@@ -100,6 +140,15 @@ class MyGame(arcade.Window):
             coin.center_y = 96
             self.coin_list.append(coin)
 
+        for i in range(ANTIVIRUS_COUNT):
+            antivirus = AntiVirus("images/coin_01.png", SPRITE_SCALING_ANTIVIRUS)
+
+            # Position the antivirus
+            antivirus.center_x = random.randrange(SCREEN_WIDTH)
+            antivirus.center_y = random.randrange(SCREEN_HEIGHT)
+
+            self.antivirus_list.append(antivirus)
+
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
     def on_draw(self):
@@ -107,14 +156,18 @@ class MyGame(arcade.Window):
 
         # Clear the screen to the background color
         arcade.start_render()
+       
         
         # Draw our sprites
         self.wall_list.draw()
         self.coin_list.draw()
         self.player_list.draw()
+        self.antivirus_list.draw()
+
 
         score_text = f"Score: {self.score}"
-        arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.color.WHITE, 32)
+        arcade.draw_text(score_text, 10 + self.view_left, 600 + self.view_bottom, arcade.color.WHITE, 32)
+
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
@@ -154,6 +207,15 @@ class MyGame(arcade.Window):
             arcade.play_sound(self.collect_coin_sound)
             # Add one to the score
             self.score += 1
+
+        for antivirus in self.antivirus_list:
+            antivirus.follow_sprite(self.player_sprite)
+
+            hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.antivirus_list)
+
+            for antivirus in hit_list:
+                antivirus.kill()
+                self.score -= 1
 
 
         # ---Manage Scrolling ---
@@ -200,6 +262,7 @@ def main():
 
 if __name__== "__main__":
     main()
+
 
 
 
