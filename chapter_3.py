@@ -15,8 +15,8 @@ TILE_SCALING = 0.5
 COIN_SCALING = 0.5
 
 PLAYER_MOVEMENT_SPEED = 10
-GRAVITY = 1
-PLAYER_JUMP_SPEED = 200
+GRAVITY = 2
+PLAYER_JUMP_SPEED = 25
 
 # How many pixels to keep as a minimum margin between the player and the edge 
 # of the screen. 
@@ -45,10 +45,26 @@ class MyGame(arcade.Window):
         self.view_bottom = 0
         self.view_left = 0 
 
+        # Keep track of score
+        self.score = 0
+
+        # Load sounds
+        self.collect_coin_sound = arcade.load_sound("SFX/buttonclick.wav")
+        self.jump_sound = arcade.load_sound("SFX/EEnE Whoosh 8.wav")
+
         arcade.set_background_color(arcade.csscolor.BLACK)
+
 
     def setup(self):
         """Set up the game here. Call this function to restart the game"""
+
+        # Used to keep track of our scrolling
+        self.view_bottom = 0
+        self.view_left = 0
+
+        # Used to keep track of the score
+        self.score = 0
+
         # Create the Sprite lists
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
@@ -63,7 +79,7 @@ class MyGame(arcade.Window):
 
         # Create the ground
         for x in range(0, 1250, 64):
-            wall = arcade.Sprite("images/grass_block.png", 0.2)
+            wall = arcade.Sprite("images/boxCrate_double.png")
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
@@ -78,6 +94,12 @@ class MyGame(arcade.Window):
             wall.position = coordinate
             self.wall_list.append(wall)
         
+        for x in range(128, 1250, 256):
+            coin = arcade.Sprite("images/boxCrate_double.png", 0.2)
+            coin.center_x = x
+            coin.center_y = 96
+            self.coin_list.append(coin)
+
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
     def on_draw(self):
@@ -86,16 +108,18 @@ class MyGame(arcade.Window):
         # Clear the screen to the background color
         arcade.start_render()
         
-        # Code to draw the screen goes here
+        # Draw our sprites
         self.wall_list.draw()
         self.coin_list.draw()
         self.player_list.draw()
-    
+
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(score_text, 10 + self.view_left, 10 + self.view_bottom, arcade.color.WHITE, 32)
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
 
         if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+            self.player_sprite.change_y = PLAYER_JUMP_SPEED
         elif key == arcade.key.DOWN or key == arcade.key.S:
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
@@ -120,6 +144,17 @@ class MyGame(arcade.Window):
 
         # Move the player with the physics engine
         self.physics_engine.update()
+
+        coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.coin_list)
+
+        for coin in coin_hit_list:
+            coin.remove_from_sprite_lists()
+            
+            # Play a sound
+            arcade.play_sound(self.collect_coin_sound)
+            # Add one to the score
+            self.score += 1
+
 
         # ---Manage Scrolling ---
 
@@ -155,6 +190,7 @@ class MyGame(arcade.Window):
 
         arcade.set_viewport(self.view_left, SCREEN_WIDTH + self.view_left, self.view_bottom, SCREEN_HEIGHT + self.view_bottom)
 
+
 def main():
     """Main method"""
     window = MyGame()
@@ -164,4 +200,7 @@ def main():
 
 if __name__== "__main__":
     main()
+
+
+
 
