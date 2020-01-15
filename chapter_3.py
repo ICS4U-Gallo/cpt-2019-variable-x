@@ -1,3 +1,4 @@
+ 
 """
 Hack&/
 To-do:
@@ -9,6 +10,7 @@ GUI
 import arcade
 import math
 import random
+import json
 
 # Constants
 SCREEN_WIDTH = 1080
@@ -23,8 +25,9 @@ COIN_COUNT = 500
 
 SPRITE_SCALING_PLAYER = 0.5
 SPRITE_SCALING_ANTIVIRUS = 0.2
-ANTIVIRUS_COUNT = 50
-ANTIVIRUS_SPEED = 6
+SPRITE_SCALING_COIN = 0.1
+ANTIVIRUS_COUNT = 20
+ANTIVIRUS_SPEED = 5
 SPRITE_SPEED = 0.5
 
 PLAYER_MOVEMENT_SPEED = 10
@@ -34,6 +37,7 @@ PLAYER_JUMP_SPEED = 25
 INSTRUCTIONS_PAGE_0 = 0
 GAME_RUNNING = 1
 GAME_OVER = 2
+GAME_WIN = 3
 
 # How many pixels to keep as a minimum margin between the player and the edge 
 # of the screen. 
@@ -65,6 +69,30 @@ class AntiVirus(arcade.Sprite):
 
             self.change_x = math.cos(angle) * ANTIVIRUS_SPEED
             self.change_y = math.sin(angle) * ANTIVIRUS_SPEED
+
+
+class Coin(arcade.Sprite):
+
+    def follow_sprite(self, player_sprite):
+        
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        if random.randrange(100) == 0:
+            start_x = self.center_x
+            start_y = self.center_y
+
+            # Get the destination location for the bullet
+            dest_x = player_sprite.center_x
+            dest_y = player_sprite.center_y
+
+            # Calculate how to get the bullet to the destination
+            x_diff = dest_x - start_x
+            y_diff = dest_y - start_y
+            angle = math.atan2(y_diff, x_diff)
+
+            self.change_x = math.cos(angle) * ANTIVIRUS_SPEED
+            self.change_y = math.sin(angle) * ANTIVIRUS_SPEED
         
         
 class MyGame(arcade.Window):
@@ -74,7 +102,14 @@ class MyGame(arcade.Window):
     def __init__(self):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        
+        sorted_list = []
 
+        def bubblesort(numbers):
+            n = len(numbers)
+
+            for i in range(n):
+                pass
         # These are 'lists' that keep track of our sprites. Each sprite should go into a list.
         self.coin_list = None
         self.wall_list = None
@@ -98,7 +133,7 @@ class MyGame(arcade.Window):
         
         self.current_state = INSTRUCTIONS_PAGE_0
         self.instructions = []
-        texture = arcade.load_texture("images/hacked.jpeg")
+        texture = arcade.load_texture("images/instructions.png")
         self.instructions.append(texture)
 
         self.background = None
@@ -106,6 +141,12 @@ class MyGame(arcade.Window):
     
     def setup(self):
         """Set up the game here. Call this function to restart the game"""
+
+        # Track the current state of what key is pressed
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.down_pressed = False
 
         self.set_mouse_visible(False)
 
@@ -124,7 +165,7 @@ class MyGame(arcade.Window):
         self.antivirus_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = "images/matrixman.png" 
+        image_source = "images/hacker.png" 
         self.player_sprite = arcade.Sprite(image_source, 0.1)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 500
@@ -132,7 +173,7 @@ class MyGame(arcade.Window):
 
         # Create the ground
         for x in range(0, 10000, 64):
-            wall = arcade.Sprite("images/pinktile.jpg", 0.2)
+            wall = arcade.Sprite("images/vaporwaveblock.png", 0.4)
             wall.center_x = x
             wall.center_y = 32
             self.wall_list.append(wall)
@@ -143,47 +184,27 @@ class MyGame(arcade.Window):
         
         for coordinate in coordinate_list:
             # Add a crate on the ground
-            wall = arcade.Sprite("images/boxCrate_double.png", TILE_SCALING)
+            wall = arcade.Sprite("images/vaporwaveblock.png", TILE_SCALING)
             wall.position = coordinate
             self.wall_list.append(wall)
         
         for x in range(COIN_COUNT):
-            coin = arcade.Sprite("images/goldhackercoin.png", 0.05)
+            coin = AntiVirus("images/windowsxp.png", SPRITE_SCALING_COIN)
+
             coin.center_x = random.randrange(SCREEN_WIDTH + 10000)
             coin.center_y = random.randrange(SCREEN_HEIGHT + 10000)
+
             self.coin_list.append(coin)
 
         for i in range(ANTIVIRUS_COUNT):
-            antivirus = AntiVirus("images/McAfee.png", SPRITE_SCALING_ANTIVIRUS)
+            antivirus = AntiVirus("images/macafee.png", SPRITE_SCALING_ANTIVIRUS)
 
             # Position the antivirus
             antivirus.center_x = random.randrange(SCREEN_WIDTH)
-            antivirus.center_y = random.randrange(600,900)
+            antivirus.center_y = random.randrange(600, 900)
 
             self.antivirus_list.append(antivirus)
 
-        # --- Load in a map from the tiled editor ---
-
-        # Name of map file to load
-        map_name = ":resources:tmx_maps/map2_level_1.tmx"
-        # Name of the layer in the file that has our platforms/walls
-        platforms_layer_name = 'Platforms'
-        # Name of the layer that has items for pick-up
-        coins_layer_name = 'Coins'
-
-        # Read in the tiled map
-        my_map = arcade.tilemap.read_tmx(map_name)
-
-        # -- Platforms
-        self.wall_list = arcade.tilemap.process_layer(my_map, platforms_layer_name, TILE_SCALING)
-
-        # -- Coins
-        self.coin_list = arcade.tilemap.process_layer(my_map, coins_layer_name, TILE_SCALING)
-
-        # --- Other stuff
-        # Set the background color
-        if my_map.background_color:
-            arcade.set_background_color(my_map.background_color)
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
 
@@ -195,6 +216,19 @@ class MyGame(arcade.Window):
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
                                       page_texture.width,
                                       page_texture.height, page_texture, 0)
+    def draw_game(self):
+        """
+        Draw all the sprites, along with the score.
+        """
+        # Draw all the sprites.
+        self.player_list.draw()
+        self.coin_list.draw()
+
+        health_text = f"trojan_integrity: {self.health + 1}"
+        arcade.draw_text(health_text, 10 + self.view_left, 600 + self.view_bottom, arcade.color.WHITE, 32)
+        
+        score_text = f"Score: {self.score}"
+        arcade.draw_text(score_text, 10 + self.view_left + 600, 600 + self.view_bottom, arcade.color.WHITE, 32)
 
     def draw_game_over(self):
         """
@@ -206,13 +240,19 @@ class MyGame(arcade.Window):
         output = "Click to restart"
         arcade.draw_text(output, self.view_left + 60, self.view_bottom + 200, arcade.color.WHITE, 24)
 
+    def draw_game_win(self):
+        """
+        Draw "You win" across the screen.
+        """
+        output = "Mainframe successfully hacked."
+        arcade.draw_text(output, self.view_left, self.view_bottom + 300, arcade.color.WHITE, 54)
+        
     def on_draw(self):
         """Render the screen."""
 
         # Clear the screen to the background color
         arcade.start_render()
        
-        
         # Draw our sprites
         self.wall_list.draw()
         self.coin_list.draw()
@@ -220,18 +260,15 @@ class MyGame(arcade.Window):
         self.antivirus_list.draw()
 
 
-        health_text = f"trojan_integrity: {self.health + 1}"
-        arcade.draw_text(health_text, 10 + self.view_left, 600 + self.view_bottom, arcade.color.WHITE, 32)
-        
-        score_text = f"Score: {self.score}"
-        arcade.draw_text(score_text, 10 + self.view_left + 600, 600 + self.view_bottom, arcade.color.WHITE, 32)
-
         if self.current_state == INSTRUCTIONS_PAGE_0:
             self.draw_instructions_page(0)
         
         elif self.current_state == GAME_RUNNING:
             self.draw_game()
 
+        elif self.current_state == GAME_WIN:
+            self.draw_game_win()
+            
         else:
             self.draw_game_over()
 
@@ -252,13 +289,20 @@ class MyGame(arcade.Window):
             # Restart the game.
             self.setup()
             self.current_state = GAME_RUNNING 
-    
+
+        elif self.current_state == GAME_WIN:
+            self.setup()
+            self.current_state = GAME_OVER
             
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
+        
+        ground_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.wall_list)
 
         if key == arcade.key.UP or key == arcade.key.W:
+            if self.player_sprite.center_x <= wall_list
             self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                            
         elif key == arcade.key.DOWN or key == arcade.key.S:
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
         elif key == arcade.key.LEFT or key == arcade.key.A:
@@ -266,17 +310,28 @@ class MyGame(arcade.Window):
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
 
+        elif key == arcade.key.UP:
+            self.up_pressed = True
+        elif key == arcade.key.DOWN:
+            self.down_pressed = True
+        elif key == arcade.key.LEFT:
+            self.left_pressed = True
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = True
+
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
 
-        if key == arcade.key.UP or key == arcade.key.W:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = 0
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = 0
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = 0
+        if key == arcade.key.UP:
+            self.up_pressed = False
+        elif key == arcade.key.DOWN:
+            self.down_pressed = False
+        elif key == arcade.key.LEFT:
+            self.left_pressed = False
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = False
+
+            
 
     def on_update(self, delta_time):
         """ Movement and game logic """
@@ -288,6 +343,7 @@ class MyGame(arcade.Window):
             coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.coin_list)
 
             for coin in coin_hit_list:
+                coin.follow_sprite(self.player_sprite)
                 coin.remove_from_sprite_lists()
                 
                 # Play a sound
@@ -306,6 +362,10 @@ class MyGame(arcade.Window):
             
             if self.health <= -1:
                 self.current_state = GAME_OVER
+                self.set_mouse_visible(True)
+
+            if self.score >= 10:
+                self.current_state = GAME_WIN
                 self.set_mouse_visible(True)
 
             for antivirus in self.antivirus_list:
@@ -376,4 +436,4 @@ def main():
 
 if __name__== "__main__":
     main()
-
+    
