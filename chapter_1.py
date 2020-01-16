@@ -16,6 +16,7 @@ class Chapter1View(arcade.View):
         self.director.next_view()
 
 
+
 if __name__ == "__main__":
     """This section of code will allow you to run your View
     independently from the main.py file and its Director.
