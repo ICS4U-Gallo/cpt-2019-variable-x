@@ -134,10 +134,10 @@ class HighscoreView(arcade.View):
 
         for values in data.values():
             sorted_list.append(values)
-            bubblesort(sorted_list)
+            merge_sort(sorted_list)
         arcade.draw_text(f"Highscores: \n", WIDTH/2, HEIGHT/2,
                          arcade.color.BLACK, font_size=18, anchor_x="center")
-        for i in reversed(range(5)):
+        for i in range(5):
             arcade.draw_text(f"{i+1}: {sorted_list[i]} \n", WIDTH/2, HEIGHT/2-height_decrease,
                              arcade.color.BLACK, font_size=18, anchor_x="center")
             height_decrease -= 20
