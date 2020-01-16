@@ -34,7 +34,7 @@ def merge_sort(numbers: List[int]) -> List[int]:
     right_marker = 0
     while left_marker < len(left_side) and right_marker < len(right_side):
         # if right value less than left value, add right value to sorted, increase right marker
-        if left_side[left_marker] < right_side[right_marker]:
+        if left_side[left_marker] > right_side[right_marker]:
             sorted_list.append(left_side[left_marker])
             left_marker += 1
         # if left value less than right value, add left value to sorted, increase left marker
