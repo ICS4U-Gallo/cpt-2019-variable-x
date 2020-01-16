@@ -21,17 +21,18 @@ SCREEN_TITLE = "Platformer Game"
 CHARACTER_SCALING = 1
 TILE_SCALING = 0.5
 COIN_SCALING = 0.5
-COIN_COUNT = 500
+COIN_COUNT = 100
+COIN_SPEED = 5
 
 SPRITE_SCALING_PLAYER = 0.5
-SPRITE_SCALING_ANTIVIRUS = 0.2
+SPRITE_SCALING_ANTIVIRUS = 1
 SPRITE_SCALING_COIN = 0.1
 ANTIVIRUS_COUNT = 20
 ANTIVIRUS_SPEED = 5
 SPRITE_SPEED = 0.5
 
-PLAYER_MOVEMENT_SPEED = 10
-GRAVITY = 2
+MOVEMENT_SPEED = 10
+GRAVITY = 10
 PLAYER_JUMP_SPEED = 25
 
 INSTRUCTIONS_PAGE_0 = 0
@@ -45,6 +46,45 @@ LEFT_VIEWPORT_MARGIN = 500
 RIGHT_VIEWPORT_MARGIN = 500
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 200
+
+sorted_list = []
+
+class ScoreBoard:
+    def highscores(self, score):
+        sorted_list = []
+        user = score
+
+        def bubblesort(numbers):
+            n = len(numbers)
+
+            for i in range(n):
+                for j in range(n - i - 1):
+                    if numbers[j] < numbers[j + 1]:
+                        numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
+
+            return numbers
+
+        with open("data.json", "r") as f:
+            data = json.load(f)
+        
+
+        data[f"user {len(data) + 1}"] = user
+
+        with open("data.json", 'w') as f:
+            json.dump(data, f)
+
+
+        with open("data.json", "r") as f:
+            data = json.load(f)
+
+        for values in data.values():
+            sorted_list.append(values)
+            bubblesort(sorted_list)
+        
+
+        for i in range(len(sorted_list)):
+            print(f" {i + 1}. {sorted_list[i]}")
+                
 
 
 class AntiVirus(arcade.Sprite):
@@ -91,8 +131,8 @@ class Coin(arcade.Sprite):
             y_diff = dest_y - start_y
             angle = math.atan2(y_diff, x_diff)
 
-            self.change_x = math.cos(angle) * ANTIVIRUS_SPEED
-            self.change_y = math.sin(angle) * ANTIVIRUS_SPEED
+            self.change_x = (math.cos(angle) * COIN_SPEED)
+            self.change_y = (math.sin(angle) * COIN_SPEED)
         
         
 class MyGame(arcade.Window):
@@ -102,14 +142,7 @@ class MyGame(arcade.Window):
     def __init__(self):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-        
-        sorted_list = []
-
-        def bubblesort(numbers):
-            n = len(numbers)
-
-            for i in range(n):
-                pass
+       
         # These are 'lists' that keep track of our sprites. Each sprite should go into a list.
         self.coin_list = None
         self.wall_list = None
@@ -141,6 +174,8 @@ class MyGame(arcade.Window):
     
     def setup(self):
         """Set up the game here. Call this function to restart the game"""
+
+        self.total_time = 0.0
 
         # Track the current state of what key is pressed
         self.left_pressed = False
@@ -191,13 +226,13 @@ class MyGame(arcade.Window):
         for x in range(COIN_COUNT):
             coin = AntiVirus("images/windowsxp.png", SPRITE_SCALING_COIN)
 
-            coin.center_x = random.randrange(SCREEN_WIDTH + 10000)
-            coin.center_y = random.randrange(SCREEN_HEIGHT + 10000)
+            coin.center_x = random.randrange(SCREEN_WIDTH + 1000)
+            coin.center_y = random.randrange(SCREEN_HEIGHT + 1000)
 
             self.coin_list.append(coin)
 
         for i in range(ANTIVIRUS_COUNT):
-            antivirus = AntiVirus("images/macafee.png", SPRITE_SCALING_ANTIVIRUS)
+            antivirus = AntiVirus("images/zombie.png", SPRITE_SCALING_ANTIVIRUS)
 
             # Position the antivirus
             antivirus.center_x = random.randrange(SCREEN_WIDTH)
@@ -207,6 +242,7 @@ class MyGame(arcade.Window):
 
 
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
+
 
     def draw_instructions_page(self, page_number):
         """
@@ -230,11 +266,22 @@ class MyGame(arcade.Window):
         score_text = f"Score: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left + 600, 600 + self.view_bottom, arcade.color.WHITE, 32)
 
+        minutes = int(self.total_time) // 60
+
+        # Calculate seconds by using a modulus (remainder)
+        seconds = int(self.total_time) % 60
+
+        # Figure out our output
+        output = f"Time: {minutes:02d}:{seconds:02d}"
+
+        # Output the timer text.
+        arcade.draw_text(output,self.view_left, self.view_bottom, arcade.color.WHITE, 32)
+
     def draw_game_over(self):
         """
         Draw "Game over" across the screen.
         """
-        output = "We'll Be Right Back."
+        output = "Hacking Failed, Reload Trojan"
         arcade.draw_text(output, self.view_left, self.view_bottom + 300, arcade.color.WHITE, 54)
 
         output = "Click to restart"
@@ -247,12 +294,60 @@ class MyGame(arcade.Window):
         output = "Mainframe successfully hacked."
         arcade.draw_text(output, self.view_left, self.view_bottom + 300, arcade.color.WHITE, 54)
         
+        output_highscores = self.total_time
+        
+        arcade.draw_text(str(output_highscores), self.view_left, self.view_bottom, arcade.color.WHITE, 54)
+
+
+        sorted_list = []
+        user = int(input("Enter a value: "))
+
+        def bubblesort(numbers):
+            n = len(numbers)
+
+            for i in range(n):
+                for j in range(n - i - 1):
+                    if numbers[j] < numbers[j + 1]:
+                        numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
+
+            return numbers
+
+
+
+
+        with open("data.json", "r") as f:
+            data = json.load(f)
+            
+
+
+        data[f"user {len(data) + 1}"] = user
+
+        with open("data.json", 'w') as f:
+            json.dump(data, f)
+
+
+        def score_board():
+            with open("data.json", "r") as f:
+                data = json.load(f)
+
+            for values in data.values():
+                sorted_list.append(values)
+                bubblesort(sorted_list)
+        
+
+            for i in range(len(sorted_list)):
+                print(f" {i + 1}. {sorted_list[i]}")
+                
+
+        result = score_board()
+print(result)
     def on_draw(self):
         """Render the screen."""
 
         # Clear the screen to the background color
         arcade.start_render()
-       
+
+
         # Draw our sprites
         self.wall_list.draw()
         self.coin_list.draw()
@@ -297,20 +392,7 @@ class MyGame(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
         
-        ground_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.wall_list)
-
-        if key == arcade.key.UP or key == arcade.key.W:
-            if self.player_sprite.center_x <= wall_list
-            self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                            
-        elif key == arcade.key.DOWN or key == arcade.key.S:
-            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.LEFT or key == arcade.key.A:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
-
-        elif key == arcade.key.UP:
+        if key == arcade.key.UP:
             self.up_pressed = True
         elif key == arcade.key.DOWN:
             self.down_pressed = True
@@ -335,21 +417,43 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
+        
+        self.total_time += delta_time
 
+        # Calculate speed based on the keys pressed
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            self.player_sprite.change_y = PLAYER_JUMP_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -MOVEMENT_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = MOVEMENT_SPEED
+
+        # Call update to move the sprite
+        # If using a physics engine, call update on it instead of the sprite
+        # list.
+        
         if self.current_state == GAME_RUNNING:
             # Move the player with the physics engine
             self.physics_engine.update()
 
-            coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.coin_list)
-
-            for coin in coin_hit_list:
+            
+            for coin in self.coin_list:
                 coin.follow_sprite(self.player_sprite)
-                coin.remove_from_sprite_lists()
                 
-                # Play a sound
-                arcade.play_sound(self.collect_coin_sound)
-                # Add one to the score
-                self.score += 1
+                coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.coin_list)
+
+                for coin in coin_hit_list:
+                    coin.remove_from_sprite_lists()
+                    
+                    # Play a sound
+                    arcade.play_sound(self.collect_coin_sound)
+                    # Add one to the score
+                    self.score += 1
 
             for antivirus in self.antivirus_list:
                 antivirus.follow_sprite(self.player_sprite)
