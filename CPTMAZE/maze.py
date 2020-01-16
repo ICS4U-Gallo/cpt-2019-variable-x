@@ -1,7 +1,6 @@
 import random
 import arcade
 import timeit
-import json
 
 sprite_scaling = 0.25
 sprite_size = 128 * sprite_scaling
@@ -118,7 +117,49 @@ def make_maze_recursion(maze_width, maze_height):
     # Start the recursive process
     make_maze_recursive_call(maze, maze_height - 1, 0, 0, maze_width - 1)
     return maze
+
+
+class HighscoreInput(arcade.Window):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.AMAZON)
+
+    def on_draw(self):
+        highscore = MyGame().SCORE
+        arcade.start_render()
+        arcade.draw_text(f"You Have Escaped The Building: {highscore}", WIDTH/2, HEIGHT/2,
+                         arcade.color.BLACK, font_size=12, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        highscore = MyGame().SCORE
+        with open("data.json", "r") as f:
+            data = json.load(f)
     
+        data[f"highscore {len(data) + 1}"] = highscore
+
+        with open("data.json", 'w') as f:
+            json.dump(data, f)
+        highscore_view = HighscoreView()
+        self.window.show_view(highscore_view)
+
+
+class HighscoreView(arcade.Window):
+    def on_show(self):
+        arcade.set_background_color(arcade.color.AMAZON)
+
+    def on_draw(self):
+        sorted_list = []
+        arcade.start_render()
+        with open("data.json", "r") as f:
+            data = json.load(f)
+
+        for values in data.values():
+            sorted_list.append(values)
+            bubblesort(sorted_list)
+        arcade.draw_text(f"Highscores: \n {sorted_list}", WIDTH/2, HEIGHT/2,
+                         arcade.color.BLACK, font_size=18, anchor_x="center")
+        arcade.draw_text("Click to continue", WIDTH/2, HEIGHT/2-75,
+                         arcade.color.GRAY, font_size=20, anchor_x="center")
+
 
 class MyGame(arcade.Window):
     """ Main application class. """
@@ -135,7 +176,6 @@ class MyGame(arcade.Window):
         self.staircase_list = None
 
         # Player info
-        self.score = 0
         self.player_sprite = None
 
         # Physics engine
@@ -152,10 +192,6 @@ class MyGame(arcade.Window):
         self.player_list = arcade.SpriteList()
         self.wall_list = arcade.SpriteList()
         self.staircase_list = arcade.SpriteList()
-        self.counter = 0
-
-        # Set up the player
-        self.score = 0
 
         maze = make_maze_recursion(maze_width, maze_height)
 
@@ -165,16 +201,16 @@ class MyGame(arcade.Window):
         for row in range(maze_height):
             for column in range(maze_width):
                 if maze[row][column] == 1:
-                    wall = arcade.Sprite("images/brick.png", sprite_scaling)
+                    wall = arcade.Sprite("CPTMAZE/images/brick.png", sprite_scaling)
                     wall.center_x = column * sprite_size + sprite_size / 2
                     wall.center_y = row * sprite_size + sprite_size / 2
                     self.wall_list.append(wall)
 
         # Set up the player
-        self.player_sprite = arcade.Sprite("images/person.png", sprite_scaling)
+        self.player_sprite = arcade.Sprite("CPTMAZE/images/person.png", sprite_scaling)
         self.player_list.append(self.player_sprite)
 
-        self.staircase_sprite = arcade.Sprite("images/staircase.jpg", sprite_scaling)
+        self.staircase_sprite = arcade.Sprite("CPTMAZE/images/staircase.jpg", sprite_scaling)
         self.staircase_list.append(self.staircase_sprite)
 
         # Randomly place the player. If in a wall, repeat until we aren't.
@@ -208,7 +244,6 @@ class MyGame(arcade.Window):
         # Set the viewport boundaries
         self.view_left = 0
         self.view_bottom = 0
-        print(f"Total wall blocks: {len(self.wall_list)}")
 
     def on_draw(self):
         """
@@ -260,47 +295,18 @@ class MyGame(arcade.Window):
         for player in self.player_list:
             hit_list = arcade.check_for_collision_with_list(player, self.staircase_list)
 
-        if len(hit_list) > 0:
-            self.counter += 1
+        for player in hit_list:
             self.setup()
-            print(self.counter)
 
+            if len(hit_list) >= 0:
+                self.counter += 1
+                print(self.counter)
+
+            if self.counter == 3:
+                highscoreinput = HighscoreInput(screen_width, screen_height, title) 
+                self.window.show_view(highscoreinput)
+                
         self.time += delta_time
-
-
-"""
-        def bubblesort(numbers):
-            n = len(numbers)
-
-            for i in range(n):
-                for j in range(n - i - 1):
-                    if numbers[j] > numbers[j + 1]:
-                        numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
-
-            return numbers
-
-        with open("data.json", "r") as f:
-            data = json.load(f)
-            
-        data[f"user {len(data) + 1}"] = self.time
-
-        with open("data.json", 'w') as f:
-            json.dump(data, f)
-
-        def score_board():
-            with open("data.json", "r") as f:
-                data = json.load(f)
-
-            for values in data.values():
-                sorted_list.append(values)
-                bubblesort(sorted_list)
-        
-            for i in range(len(sorted_list)):
-                print(f" {i + 1}. {sorted_list[i]}")
-             
-        result = score_board()
-        print(result)
-"""
 
 
 def main():
