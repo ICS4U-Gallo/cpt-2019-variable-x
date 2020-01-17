@@ -1,4 +1,5 @@
  
+ 
 """
 Hack&/
 To-do:
@@ -49,43 +50,39 @@ TOP_VIEWPORT_MARGIN = 200
 
 sorted_list = []
 
-class ScoreBoard:
-    def highscores(self, score):
-        sorted_list = []
-        user = score
+class ScoreBoard():
+    sorted_list = []
+    user = int(input("Enter a value: "))       
 
-        def bubblesort(numbers):
-            n = len(numbers)
+    def bubblesort(numbers):
+        n = len(numbers)
 
-            for i in range(n):
-                for j in range(n - i - 1):
-                    if numbers[j] < numbers[j + 1]:
-                        numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
+        for i in range(n):
+            for j in range(n - i - 1):
+                if numbers[j] < numbers[j + 1]:
+                    numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
 
-            return numbers
+        return numbers
 
-        with open("data.json", "r") as f:
-            data = json.load(f)
+    with open("data.json", "r") as f:
+        data = json.load(f)
+
+    data[f"user {len(data) + 1}"] = user
         
-
-        data[f"user {len(data) + 1}"] = user
-
-        with open("data.json", 'w') as f:
-            json.dump(data, f)
-
-
+    def score_board():
         with open("data.json", "r") as f:
             data = json.load(f)
 
         for values in data.values():
             sorted_list.append(values)
             bubblesort(sorted_list)
-        
+            
 
         for i in range(len(sorted_list)):
             print(f" {i + 1}. {sorted_list[i]}")
                 
-
+    result = score_board()
+    print(result)
 
 class AntiVirus(arcade.Sprite):
 
@@ -249,9 +246,11 @@ class MyGame(arcade.Window):
         Draw an instruction page. Load the page as an image.
         """
         page_texture = self.instructions[page_number]
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
+        arcade.draw_texture_rectangle(550 + self.view_left, 350 + self.view_bottom,
                                       page_texture.width,
                                       page_texture.height, page_texture, 0)
+
+        
     def draw_game(self):
         """
         Draw all the sprites, along with the score.
@@ -259,6 +258,9 @@ class MyGame(arcade.Window):
         # Draw all the sprites.
         self.player_list.draw()
         self.coin_list.draw()
+
+        highscores_text = ScoreBoard()
+        arcade.draw_text(highscores_text, self.view_left, self.view_bottom, arcade.color.WHITE, 50)
 
         health_text = f"trojan_integrity: {self.health + 1}"
         arcade.draw_text(health_text, 10 + self.view_left, 600 + self.view_bottom, arcade.color.WHITE, 32)
@@ -298,55 +300,15 @@ class MyGame(arcade.Window):
         
         arcade.draw_text(str(output_highscores), self.view_left, self.view_bottom, arcade.color.WHITE, 54)
 
+    
 
-        sorted_list = []
-        user = int(input("Enter a value: "))
-
-        def bubblesort(numbers):
-            n = len(numbers)
-
-            for i in range(n):
-                for j in range(n - i - 1):
-                    if numbers[j] < numbers[j + 1]:
-                        numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
-
-            return numbers
-
-
-
-
-        with open("data.json", "r") as f:
-            data = json.load(f)
-            
-
-
-        data[f"user {len(data) + 1}"] = user
-
-        with open("data.json", 'w') as f:
-            json.dump(data, f)
-
-
-        def score_board():
-            with open("data.json", "r") as f:
-                data = json.load(f)
-
-            for values in data.values():
-                sorted_list.append(values)
-                bubblesort(sorted_list)
-        
-
-            for i in range(len(sorted_list)):
-                print(f" {i + 1}. {sorted_list[i]}")
-                
-
-        result = score_board()
-print(result)
     def on_draw(self):
         """Render the screen."""
 
         # Clear the screen to the background color
         arcade.start_render()
 
+        n = len(self.antivirus_list)
 
         # Draw our sprites
         self.wall_list.draw()
@@ -387,7 +349,7 @@ print(result)
 
         elif self.current_state == GAME_WIN:
             self.setup()
-            self.current_state = GAME_OVER
+            self.current_state = INSTRUCTIONS_PAGE_0
             
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -418,30 +380,28 @@ print(result)
     def on_update(self, delta_time):
         """ Movement and game logic """
         
-        self.total_time += delta_time
-
-        # Calculate speed based on the keys pressed
-        self.player_sprite.change_x = 0
-        self.player_sprite.change_y = 0
-
-        if self.up_pressed and not self.down_pressed:
-            self.player_sprite.change_y = PLAYER_JUMP_SPEED
-        elif self.down_pressed and not self.up_pressed:
-            self.player_sprite.change_y = -MOVEMENT_SPEED
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -MOVEMENT_SPEED
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = MOVEMENT_SPEED
-
-        # Call update to move the sprite
-        # If using a physics engine, call update on it instead of the sprite
-        # list.
-        
         if self.current_state == GAME_RUNNING:
             # Move the player with the physics engine
             self.physics_engine.update()
 
-            
+            self.total_time += delta_time
+
+            # Calculate speed based on the keys pressed
+            self.player_sprite.change_x = 0
+            self.player_sprite.change_y = 0
+
+            if self.up_pressed and not self.down_pressed:
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
+            elif self.down_pressed and not self.up_pressed:
+                self.player_sprite.change_y = -MOVEMENT_SPEED
+            if self.left_pressed and not self.right_pressed:
+                self.player_sprite.change_x = -MOVEMENT_SPEED
+            elif self.right_pressed and not self.left_pressed:
+                self.player_sprite.change_x = MOVEMENT_SPEED
+
+            # Call update to move the sprite
+            # If using a physics engine, call update on it instead of the sprite
+            # list.
             for coin in self.coin_list:
                 coin.follow_sprite(self.player_sprite)
                 
