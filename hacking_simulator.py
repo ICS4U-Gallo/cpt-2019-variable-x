@@ -202,7 +202,7 @@ class MyGame(arcade.Window):
         self.antivirus_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = "images/hacker.png" 
+        image_source = "images/trojan.png" 
         self.player_sprite = arcade.Sprite(image_source, 0.1)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 500
