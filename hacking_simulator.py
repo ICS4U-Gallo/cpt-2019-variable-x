@@ -33,43 +33,59 @@ INSTRUCTIONS_PAGE_1 = 1
 GAME_RUNNING = 2
 GAME_OVER = 3
 GAME_WIN = 4
-# How many pixels to keep as a minimum margin between the player and the edge 
-# of the screen. 
+# How many pixels to keep as a minimum margin between the player and the edge
+# of the screen.
 LEFT_VIEWPORT_MARGIN = 550
 RIGHT_VIEWPORT_MARGIN = 500
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 200
 
+sorted_list = []
+
+
 def binary_search(lst: List[int], target: int) -> int:
+    """ Creates an empty grid.
+    Args:
+        lst: the numbers to be sorted.
+
+    Returns:
+        the sorted numbers.
+    """
     start = 0
-    end = len(lst) -1
+    end = len(lst) - 1
 
     while start < end:
         mid = (start + end)//2
-        
+
         if lst[mid] == target:
             return mid
         elif lst[mid] < target:
             end = mid - 1
         else:
             start = mid + 1
-
     return -1
 
+
 def bubblesort(numbers: List[int]) -> List[int]:
+    """ Creates an empty grid.
+    Args:
+        numbers: the numbers to be sorted.
+    Returns:
+        the sorted numbers.
+    """
     n = len(numbers)
 
     for i in range(n):
         for j in range(n - i - 1):
             if numbers[j] < numbers[j + 1]:
                 numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
-            
     return numbers
 
 
 class AntiVirus(arcade.Sprite):
+    """Class to create antivirus enemies"""
+
     def follow_sprite(self, player_sprite):
-        
         self.center_x += self.change_x
         self.center_y += self.change_y
 
@@ -91,6 +107,8 @@ class AntiVirus(arcade.Sprite):
 
 
 class Coin(arcade.Sprite):
+    """Class to create the Windows icons"""
+
     def follow_sprite(self, player_sprite):
         self.center_x += self.change_x
         self.center_y += self.change_y
@@ -109,9 +127,9 @@ class Coin(arcade.Sprite):
             angle = math.atan2(y_diff, x_diff)
 
             self.change_x = (math.cos(angle) * COIN_SPEED)
-            self.change_y = (math.sin(angle) * COIN_SPEED) 
-        
-        
+            self.change_y = (math.sin(angle) * COIN_SPEED)
+
+
 class MyGame(arcade.Window):
     """
     Main application class.
@@ -119,8 +137,8 @@ class MyGame(arcade.Window):
     def __init__(self):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
-       
-        # These are 'lists' that keep track of our sprites. Each sprite should go into a list.
+
+        # 'Lists' that keep track of the sprites.
         self.coin_list = None
         self.wall_list = None
         self.player_list = None
@@ -129,7 +147,7 @@ class MyGame(arcade.Window):
         self.player_sprite = None
 
         self.view_bottom = 0
-        self.view_left = 0 
+        self.view_left = 0
 
         # Keep track of score
         self.score = 0
@@ -140,7 +158,6 @@ class MyGame(arcade.Window):
         self.jump_sound = arcade.load_sound("SFX/EEnE Whoosh 8.wav")
 
         arcade.set_background_color(arcade.csscolor.BLACK)
-        
         self.current_state = INSTRUCTIONS_PAGE_0
         self.instructions = []
         texture = arcade.load_texture("images/GameStart.png")
@@ -150,7 +167,7 @@ class MyGame(arcade.Window):
         self.instructions.append(texture1)
 
         self.background = None
-    
+
     def setup(self):
         """Set up the game here. Call this function to restart the game"""
 
@@ -181,7 +198,7 @@ class MyGame(arcade.Window):
         self.antivirus_list = arcade.SpriteList()
 
         # Set up the player, specifically placing it at these coordinates.
-        image_source = "images/trojan.png" 
+        image_source = "images/trojan.png"
         self.player_sprite = arcade.Sprite(image_source, 0.1)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 500
@@ -200,7 +217,6 @@ class MyGame(arcade.Window):
             wall.center_y = 1300
             self.wall_list.append(wall)
 
-        
         for coordinate in range(0, 1000, 200):
             # Create left wall
             wall = arcade.Sprite("images/vaporwaveblock.png", 0.4)
@@ -214,8 +230,7 @@ class MyGame(arcade.Window):
             wall.center_x = 1500
             wall.center_y = coordinate2
             self.wall_list.append(wall)
-            
-        
+
         for x in range(COIN_COUNT):
             coin = Coin("images/windowsxp.png", SPRITE_SCALING_COIN)
 
@@ -225,7 +240,8 @@ class MyGame(arcade.Window):
             self.coin_list.append(coin)
 
         for i in range(ANTIVIRUS_COUNT):
-            antivirus = AntiVirus("images/macafee.png", SPRITE_SCALING_ANTIVIRUS)
+            antivirus = AntiVirus("images/macafee.png",
+                                  SPRITE_SCALING_ANTIVIRUS)
 
             # Position the antivirus
             antivirus.center_x = random.randrange(SCREEN_WIDTH)
@@ -233,18 +249,21 @@ class MyGame(arcade.Window):
 
             self.antivirus_list.append(antivirus)
 
-
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.wall_list, GRAVITY)
-
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+                                                            self.player_sprite,
+                                                            self.wall_list,
+                                                            GRAVITY)
 
     def draw_instructions_page(self, page_number):
         """
         Draw an instruction page. Load the page as an image.
         """
         page_texture = self.instructions[page_number]
-        arcade.draw_texture_rectangle(550 + self.view_left, 410 + self.view_bottom,
+        arcade.draw_texture_rectangle(550 + self.view_left, 410 +
+                                      self.view_bottom,
                                       page_texture.width // 1.7,
-                                      page_texture.height// 1.7, page_texture, 0)
+                                      page_texture.height // 1.7, page_texture,
+                                      0)
 
     def draw_game(self):
         """
@@ -255,10 +274,12 @@ class MyGame(arcade.Window):
         self.coin_list.draw()
 
         health_text = f"trojan_integrity: {self.health + 1}"
-        arcade.draw_text(health_text, 10 + self.view_left, 600 + self.view_bottom, arcade.color.WHITE, 32)
-        
+        arcade.draw_text(health_text, 10 + self.view_left, 600 +
+                         self.view_bottom, arcade.color.WHITE, 32)
+
         score_text = f"Score: {self.score}"
-        arcade.draw_text(score_text, 10 + self.view_left + 600, 600 + self.view_bottom, arcade.color.WHITE, 32)
+        arcade.draw_text(score_text, 10 + self.view_left + 600, 600 +
+                         self.view_bottom, arcade.color.WHITE, 32)
 
         minutes = int(self.total_time) // 60
 
@@ -269,13 +290,22 @@ class MyGame(arcade.Window):
         output = f"Time: {minutes:02d}:{seconds:02d}"
 
         # Output the timer text.
-        arcade.draw_text(output,self.view_left, self.view_bottom, arcade.color.WHITE, 32)
+        arcade.draw_text(output, self.view_left, self.view_bottom,
+                         arcade.color.WHITE, 32)
 
-    def draw_score_board(self) -> None:
-        # function that loads the texture to draw the score
-        self._score_board.draw()
-        self._score_list.draw()
-        
+    def scoreboard(self) -> None:
+        '''
+        Function created to calculate the score by using a for loop
+        '''
+        center = SCREEN_WIDTH - 105
+        self._score_board = arcade.SpriteList()
+
+        for num in str(self._score):
+            self._score_board.append(arcade.Sprite(SCORE[num], 1,
+                                                   center_x=center,
+                                                   center_y=420))
+            center += 24
+
     def store_score(self, score: int) -> None:
         """stores the time when game is over
         Args:
@@ -291,7 +321,7 @@ class MyGame(arcade.Window):
 
     def display_score_list(self) -> None:
         """displays all the score from highest to lowest"""
-        
+
         self._score_list = arcade.SpriteList()
         x_position = 100  # x coordinate of best scores on the screen
         y_position = 430  # y coordinate of the best scores on the screen
@@ -314,7 +344,8 @@ class MyGame(arcade.Window):
                 self._scores_list.append(num)
 
         # get the rank of the player by using binary search
-        self._player_rank = binary_search(self._scores_list, list(data.values())[-1])
+        self._player_rank = binary_search(self._scores_list,
+                                          list(data.values())[-1])
 
         if len(self._scores_list) < 6:
             self._five_best = self._scores_list
@@ -325,47 +356,42 @@ class MyGame(arcade.Window):
             if len(str(score)) == 1:
                 for num in str(score):
                     self._score_list.append("images/redstone.png", 1,
-                                           center_x=x_position,
-                                           center_y=y_position)
+                                            center_x=x_position,
+                                            center_y=y_position)
                     y_position -= 50
 
             if len(str(score)) == 2:
                 for num in str(score):
-                    self._score_list.append('images/redstone.png', 1, 
-                                           center_x=x_position, 
-                                           center_y=y_position)
+                    self._score_list.append('images/redstone.png', 1,
+                                            center_x=x_position,
+                                            center_y=y_position)
                     x_position += 24
                 y_position -= 50
                 x_position = 100
 
-    def scoreboard(self) -> None:
-        '''
-        Function created to calculate the score by using a for loop
-        '''
-        center = SCREEN_WIDTH - 105
-        self._score_board = arcade.SpriteList()
-
-        for num in str(self._score):
-            self._score_board.append(arcade.Sprite("images/redstone.png", 1, 
-                                                  center_x=center,
-                                                  center_y=420))
-            center += 24
+    def draw_score_board(self) -> None:
+        # function that loads the texture to draw the score
+        self._score_board.draw()
+        self._score_list.draw()
 
     def draw_game_over(self):
         """
         Draw "Game over" across the screen.
         """
         output = "Hacking Failed, Trojan Compromised"
-        arcade.draw_text(output, self.view_left, self.view_bottom + 300, arcade.color.RED, 44)
+        arcade.draw_text(output, self.view_left, self.view_bottom + 300,
+                         arcade.color.RED, 44)
 
         output = "Click to restart hacking"
-        arcade.draw_text(output, self.view_left + 60, self.view_bottom + 200, arcade.color.WHITE, 24)
-        
+        arcade.draw_text(output, self.view_left + 60, self.view_bottom + 200,
+                         arcade.color.WHITE, 24)
+
         self.scoreboard()
 
         self.draw_score_board()
-        
-        arcade.draw_text(times, self.view_left + 60, self.view_bottom + 200, arcade.color.WHITE, 24)
+
+        arcade.draw_text(times, self.view_left + 60, self.view_bottom + 200,
+                         arcade.color.WHITE, 24)
 
         self.display_score_list()
 
@@ -373,21 +399,21 @@ class MyGame(arcade.Window):
         """
         Draw "You win" across the screen.
         """
-        output = "Mainframe successfully hacked. "
-        arcade.draw_text(output, self.view_left, self.view_bottom + 300, arcade.color.GREEN, 54)
-        
+        output = "Mainframe successfully hacked."
+        arcade.draw_text(output, self.view_left, self.view_bottom + 300,
+                         arcade.color.GREEN, 54)
+
         output_highscores = f"Hacked in {round(self.total_time, 2)} seconds."
-        
-        arcade.draw_text(str(output_highscores), self.view_left, self.view_bottom, arcade.color.WHITE, 54)
-        
-        print(self._five_best)
-        print("TESTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTTESTT")
+
+        arcade.draw_text(str(output_highscores), self.view_left,
+                         self.view_bottom, arcade.color.WHITE, 54)
 
         self.scoreboard()
 
         self.draw_score_board()
-        
-        arcade.draw_text(times, self.view_left + 60, self.view_bottom + 200, arcade.color.WHITE, 24)
+
+        arcade.draw_text(times, self.view_left + 60, self.view_bottom + 200,
+                         arcade.color.WHITE, 24)
 
         self.display_score_list()
 
@@ -397,9 +423,10 @@ class MyGame(arcade.Window):
         # Clear the screen to the background color
         arcade.start_render()
 
-         # Draw the background texture
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100,
-                                      self.background.width, self.background.height, self.background)
+        # Draw the background texture
+        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 +
+                                      100, self.background.width,
+                                      self.background.height, self.background)
 
         n = len(self.antivirus_list)
 
@@ -414,14 +441,14 @@ class MyGame(arcade.Window):
 
         elif self.current_state == INSTRUCTIONS_PAGE_1:
             self.draw_instructions_page(1)
-        
+
         elif self.current_state == GAME_RUNNING:
             self.draw_game()
 
         elif self.current_state == GAME_WIN:
-            self.draw_game_win()
             self.store_score(round(self.total_time, 1))
-            
+            self.draw_game_win()
+
         else:
             self.draw_game_over()
 
@@ -429,29 +456,29 @@ class MyGame(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
-
         # Change states as needed.
         if self.current_state == INSTRUCTIONS_PAGE_0:
             # Game start screen.
             self.setup()
-            self.current_state = INSTRUCTIONS_PAGE_1  
-        
+            self.current_state = INSTRUCTIONS_PAGE_1
+
         elif self.current_state == INSTRUCTIONS_PAGE_1:
             # Next page of instructions.
-            self.current_state = GAME_RUNNING  
+            self.current_state = GAME_RUNNING
 
         elif self.current_state == GAME_OVER:
             # Restart the game.
             self.setup()
-            self.current_state = GAME_RUNNING 
+            self.current_state = GAME_RUNNING
 
         elif self.current_state == GAME_WIN:
+            self.store_score(round(self.total_time, 1))
             self.setup()
             self.current_state = INSTRUCTIONS_PAGE_0
-            
+
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-        
+
         if key == arcade.key.UP:
             self.up_pressed = True
         elif key == arcade.key.DOWN:
@@ -475,7 +502,7 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """ Movement and game logic """
-        
+
         if self.current_state == GAME_RUNNING:
             # Move the player with the physics engine
             self.physics_engine.update()
@@ -496,25 +523,25 @@ class MyGame(arcade.Window):
                 self.player_sprite.change_x = MOVEMENT_SPEED
 
             # Call update to move the sprite
-            # If using a physics engine, call update on it instead of the sprite
-            # list.
             for coin in self.coin_list:
                 coin.follow_sprite(self.player_sprite)
-                
-                coin_hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.coin_list)
+
+                coin_hit_list = arcade.check_for_collision_with_list(
+                                                            self.player_sprite,
+                                                            self.coin_list)
 
                 for coin in coin_hit_list:
                     coin.remove_from_sprite_lists()
-                    
                     # Play a sound
                     arcade.play_sound(self.collect_coin_sound)
                     # Add one to the score
                     self.score += 1
-            
-            for coin in self.coin_list:
 
+            for coin in self.coin_list:
                 coin.center_x += coin.change_x
-                walls_hit = arcade.check_for_collision_with_list(coin, self.wall_list)
+                walls_hit = arcade.check_for_collision_with_list(
+                                                                coin,
+                                                                self.wall_list)
                 for wall in walls_hit:
                     if coin.change_x > 0:
                         coin.right = wall.left
@@ -524,7 +551,9 @@ class MyGame(arcade.Window):
                     coin.change_x *= -1
 
                 coin.center_y += coin.change_y
-                walls_hit = arcade.check_for_collision_with_list(coin, self.wall_list)
+                walls_hit = arcade.check_for_collision_with_list(
+                                                                coin,
+                                                                self.wall_list)
                 for wall in walls_hit:
                     if coin.change_y > 0:
                         coin.top = wall.bottom
@@ -536,12 +565,14 @@ class MyGame(arcade.Window):
             for antivirus in self.antivirus_list:
                 antivirus.follow_sprite(self.player_sprite)
 
-                hit_list = arcade.check_for_collision_with_list(self.player_sprite, self.antivirus_list)
+                hit_list = arcade.check_for_collision_with_list(
+                                                        self.player_sprite,
+                                                        self.antivirus_list)
 
                 for antivirus in hit_list:
                     antivirus.kill()
                     self.health -= 1
-            
+
             if self.health <= -1:
                 self.current_state = GAME_OVER
                 self.set_mouse_visible(True)
@@ -553,7 +584,9 @@ class MyGame(arcade.Window):
             for antivirus in self.antivirus_list:
 
                 antivirus.center_x += antivirus.change_x
-                walls_hit = arcade.check_for_collision_with_list(antivirus, self.wall_list)
+                walls_hit = arcade.check_for_collision_with_list(
+                                                                antivirus,
+                                                                self.wall_list)
                 for wall in walls_hit:
                     if antivirus.change_x > 0:
                         antivirus.right = wall.left
@@ -563,7 +596,9 @@ class MyGame(arcade.Window):
                     antivirus.change_x *= -1
 
                 antivirus.center_y += antivirus.change_y
-                walls_hit = arcade.check_for_collision_with_list(antivirus, self.wall_list)
+                walls_hit = arcade.check_for_collision_with_list(
+                                                                antivirus,
+                                                                self.wall_list)
                 for wall in walls_hit:
                     if antivirus.change_y > 0:
                         antivirus.top = wall.bottom
@@ -571,7 +606,7 @@ class MyGame(arcade.Window):
                         antivirus.bottom = wall.top
                 if len(walls_hit) > 0:
                     antivirus.change_y *= -1
-        
+
             # ---Manage Scrolling ---
 
             # Track if we need to change the viewport
@@ -583,14 +618,16 @@ class MyGame(arcade.Window):
             if self.player_sprite.left < left_boundary:
                 self.view_left -= left_boundary - self.player_sprite.left
                 changed = True
-            
+
             # Scroll right
-            right_boundary = self.view_left + SCREEN_WIDTH - RIGHT_VIEWPORT_MARGIN
+            right_boundary = self.view_left + SCREEN_WIDTH
+            - RIGHT_VIEWPORT_MARGIN
             if self.player_sprite.right > right_boundary:
                 self.view_left += self.player_sprite.right - right_boundary
                 changed = True
 
-            top_boundary = self.view_bottom + SCREEN_HEIGHT - TOP_VIEWPORT_MARGIN
+            top_boundary = self.view_bottom + SCREEN_HEIGHT
+            - TOP_VIEWPORT_MARGIN
             if self.player_sprite.bottom > top_boundary:
                 self.view_bottom += self.player_sprite.top - top_boundary
                 changed = True
@@ -599,21 +636,21 @@ class MyGame(arcade.Window):
             if self.player_sprite.bottom < bottom_boundary:
                 self.view_bottom -= self.player_sprite.bottom + bottom_boundary
                 changed = True
-            
+
             if changed:
                 self.view_bottom = int(self.view_bottom)
                 self.view_left = int(self.view_left)
 
-            arcade.set_viewport(self.view_left, SCREEN_WIDTH + self.view_left, self.view_bottom, SCREEN_HEIGHT + self.view_bottom)
+            arcade.set_viewport(self.view_left, SCREEN_WIDTH + self.view_left,
+                                self.view_bottom, SCREEN_HEIGHT +
+                                self.view_bottom)
 
-            
+
 def main():
     """Main method"""
     window = MyGame()
     window.setup()
     arcade.run()
 
-
-if __name__== "__main__":
+if __name__ == "__main__":
     main()
-    
