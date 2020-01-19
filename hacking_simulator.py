@@ -41,23 +41,6 @@ RIGHT_VIEWPORT_MARGIN = 500
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 200
 
-# Images for the different numbers used in scoring
-SCORE = {
-    '0': 'Objects' + os.sep + 'sprites' + os.sep + '0.png',
-    '1': 'Objects' + os.sep + 'sprites' + os.sep + '1.png',
-    '2': 'Objects' + os.sep + 'sprites' + os.sep + '2.png',
-    '3': 'Objects' + os.sep + 'sprites' + os.sep + '3.png',
-    '4': 'Objects' + os.sep + 'sprites' + os.sep + '4.png',
-    '5': 'Objects' + os.sep + 'sprites' + os.sep + '5.png',
-    '6': 'Objects' + os.sep + 'sprites' + os.sep + '6.png',
-    '7': 'Objects' + os.sep + 'sprites' + os.sep + '7.png',
-    '8': 'Objects' + os.sep + 'sprites' + os.sep + '8.png',
-    '9': 'Objects' + os.sep + 'sprites' + os.sep + '9.png', }
-
-sorted_list = []
-
-# Images for the different numbers used in scoring
-
 
 def binary_search(lst: List[int], target: int) -> int:
     start = 0
