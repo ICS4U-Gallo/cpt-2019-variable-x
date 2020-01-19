@@ -251,10 +251,10 @@ class Maze(arcade.View):
         self._staircase_list = arcade.SpriteList()
 
         # Creates player and staircase
-        self._player_sprite = arcade.Sprite("Chapter 1 Maze/images/persone.png",
+        self._player_sprite = arcade.Sprite("images/persone.png",
                                             sprite_scaling)
         self._player_list.append(self._player_sprite)
-        self._staircase_sprite = arcade.Sprite("Chapter 1 Maze/images/staircase.jpg",
+        self._staircase_sprite = arcade.Sprite("images/staircase.jpg",
                                                sprite_scaling)
         self._staircase_list.append(self._staircase_sprite)
 
@@ -288,7 +288,7 @@ class Maze(arcade.View):
         for row in range(maze_height):
             for column in range(maze_width):
                 if maze[row][column] == 1:
-                    wall = arcade.Sprite("Chapter 1 Maze/images/brick.png",
+                    wall = arcade.Sprite("images/brick.png",
                                          sprite_scaling)
                     wall.center_x = column * sprite_size + sprite_size / 2
                     wall.center_y = row * sprite_size + sprite_size / 2
@@ -396,7 +396,7 @@ class Maze(arcade.View):
             self._counter += 1
 
             # If maze generates 3 times, game will transition to results
-            if self._counter == 3:
+            if self._counter == 1:
                 global time
                 time = self._time
                 escaped_building = EscapedBuilding()
@@ -423,12 +423,12 @@ class EscapedBuilding(arcade.View):
         # Time used to complete the maze rounded to two decimals
         maze_time = round(time, 2)
         # Add the time to highscore list
-        with open("Chapter 1 Maze/data.json", "r") as f:
+        with open("time.json", "r") as f:
             data = json.load(f)
 
         data[f"time {len(data) + 1}"] = maze_time
 
-        with open("Chapter 1 Maze/data.json", 'w') as f:
+        with open("time.json", 'w') as f:
             json.dump(data, f)
 
         # Transition to highscore view
@@ -452,7 +452,7 @@ class Highscores(arcade.View):
         maze_time = round(time, 2)
         height_decrease = 120
         sorted_list = []
-        with open("Chapter 1 Maze/data.json", "r") as f:
+        with open("time.json", "r") as f:
             data = json.load(f)
 
         # Displaying the scores from shortest to longest times
