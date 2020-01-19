@@ -311,10 +311,10 @@ class MyGame(arcade.Window):
         Args:
             score(int): the player's time
         """
-        with open("time.json", "r") as f:
+        with open("hack_times.json", "r") as f:
             data = json.load(f)
         data[f"user {len(data) + 1}"] = score
-        with open("time.json", "w") as f:
+        with open("hack_times.json", "w") as f:
             json.dump(data, f)
 
         self._stored_score = True
@@ -330,7 +330,7 @@ class MyGame(arcade.Window):
         self._player_rank = 0
 
         # calling the json file to load the dictionary of scores
-        with open("time.json", "r") as f:
+        with open("hack_times.json", "r") as f:
             data = json.load(f)
 
         # sort all the scores from highest to lowest
