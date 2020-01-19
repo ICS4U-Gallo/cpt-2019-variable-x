@@ -58,7 +58,6 @@ SCORE = {
 
 def bubblesort(numbers: List[int]) -> List[int]:
     """bubble sort to sort the list from highest to lowest
-     
      Args:
         numbers(List[int]): a list of integers
     Returns:
@@ -73,9 +72,9 @@ def bubblesort(numbers: List[int]) -> List[int]:
 
     return numbers
 
+
 def binary_search(numbers: List[int], target: int) -> int:
     """binsry search to search for the position of the target in the scores list
-
     Args:
         target(int): the number we are looking for
         numbers(List[int]): a list of integers
@@ -83,27 +82,21 @@ def binary_search(numbers: List[int], target: int) -> int:
         the index of the target
     """
     start = 0
-    end = len(numbers) -1
-   
+    end = len(numbers) - 1
     while end >= start: 
-
         mid = (start+end)//2
-          
         # Check if target is present at mid 
         if numbers[mid] == target: 
             return mid
-  
         # If target is greater, ignore left half 
         elif target < numbers[mid]: 
             start = mid + 1
-  
         # If target is smaller, ignore right half 
         else: 
             end = mid - 1
-      
     # element not present in list
     return -1
-    
+
 
 def load_texture_pair(filename: str) -> "SpriteList":
     """
@@ -116,7 +109,6 @@ def load_texture_pair(filename: str) -> "SpriteList":
 
 class PlayerCharacter(arcade.Sprite):
     """ Class PlayerCharacter
-
         Attrs:
             character_face_directio (int): face direction of the character 
             defaulted to right facing
@@ -133,21 +125,17 @@ class PlayerCharacter(arcade.Sprite):
 
         # Set up parent class
         super().__init__()
-
         # Default to face-right
         self._character_face_direction = RIGHT_FACING
-
         # Used for flipping between image sequences
         self._cur_texture = 0
         self._vel = 0
         self._dead = False
         self._gravity_on = False
-
         # Track out state
         main_path = ":resources:images/animated_characters/male_person/malePerson"
         # Load textures for idle standing
         self._idle_texture_pair = load_texture_pair(f"{main_path}_idle.png")
-
         # Load textures for walking
         self._walk_textures = []
         for i in range(8):
@@ -160,13 +148,13 @@ class PlayerCharacter(arcade.Sprite):
     def get_gravity_status(self) -> bool:
         return self._gravity_on
 
-   # setter for gravity status
+    # setter for gravity status
     def set_gravity_on(self, value: bool) -> None:
         self._gravity_on = value
-
+    
+    # updates the animation of the player
     def update_animation(self, delta_time: float = 1/60) -> None:
         """Updates the animation of the player
-
         Args: 
             delta_time (float): speed of the animation
         """
@@ -174,8 +162,7 @@ class PlayerCharacter(arcade.Sprite):
         if self.change_x < 0 and self._character_face_direction == RIGHT_FACING:
             self._character_face_direction = LEFT_FACING
         if self.change_x > 0 and self._character_face_direction == LEFT_FACING:
-            self._character_face_direction = RIGHT_FACING
-            
+            self._character_face_direction = RIGHT_FACING        
         # walking animation
         if self.change_x == 0 and self.change_y == 0:
             self._cur_texture += 1
@@ -210,7 +197,6 @@ class Platform(arcade.Sprite):
 
     def __init__(self, image: "sprite") -> None:
         """creates a platform object
-
         Args:
             image(sprite): The texture for the platform sprite
         """
@@ -221,10 +207,8 @@ class Platform(arcade.Sprite):
     @classmethod
     def random_platform_generator(cls) -> "sprites":
         """class method to generate random platform
-
         Args:
             sprites(sprite): The texture for the platform sprite
-
         Returns:
             returns a sprite image
         """
@@ -244,7 +228,6 @@ class Platform(arcade.Sprite):
 # Main Game class
 class Game(arcade.Window):
     """ Main class for the game
-
     Attrs:
         background: texture for the background image. Defaults to None.
         player_list (List[sprites]): list to store sprites for the player 
@@ -278,7 +261,6 @@ class Game(arcade.Window):
         """
         Initializer for the game window, note that we need to call setup() on 
         the game object.
-
         Args: 
             width(int): the width of the screen
             height(int): the height of the screen
@@ -301,10 +283,10 @@ class Game(arcade.Window):
         self._state = State.MAIN_MENU
         # The texture for the start and game over screens.
         self._menus = {'start': arcade.load_texture(ready),
-                      'ready': arcade.load_texture(ready_message),
-                      'gameover': arcade.load_texture(gameover),
-                      'play': arcade.load_texture(play),
-                      'highscore': arcade.load_texture(highscore)}
+                       'ready': arcade.load_texture(ready_message),
+                       'gameover': arcade.load_texture(gameover),
+                       'play': arcade.load_texture(play),
+                       'highscore': arcade.load_texture(highscore)}
         self._double_jump = False
         self._sorted_list = []
         self._stored_score = False
@@ -365,11 +347,10 @@ class Game(arcade.Window):
     def set_sorted_score_status(self, value: bool) -> None:
         self._sorted_score = value
 
-   # getter for player rank
+    # getter for player rank
     def get_player_rank(self) -> int:
         scores_list = []
         self._sorted_list = []
-        
         with open("score.json", "r") as f:
             data = json.load(f)
         # sort all the scores from highest to lowest
@@ -464,7 +445,7 @@ class Game(arcade.Window):
                               10, SCREEN_HEIGHT//2 - 200, arcade.color.BLACK, 25)
             arcade.draw_text("Top Five", 75, 455, arcade.color.YELLOW_ORANGE, 20)
             arcade.draw_text("Current Score", SCREEN_WIDTH - 175, 455,
-                              arcade.color.YELLOW_ORANGE, 20 )
+                             arcade.color.YELLOW_ORANGE, 20)
             # If statement to compute if there is a new highscore
             self.draw_score_board()
 
@@ -501,29 +482,27 @@ class Game(arcade.Window):
 
         for num in str(self._score):
             self._score_board.append(arcade.Sprite(SCORE[num], 1, 
-                                                  center_x=center,
-                                                  center_y=420))
+                                                   center_x=center,
+                                                   center_y=420))
             center += 24
 
     def store_score(self, score: int) -> None:
         """stores the score when game is over
-
         Args:
             score(int): the player's score
         """
         with open("score.json", "r") as f:
             data = json.load(f)
-
-        data[f"user {len(data) + 1}"] = score
-        
+        # assign the score to the key
+        data[f"user {len(data) + 1}"] = score        
+        # opens the file and updates it
         with open("score.json", "w") as f:
             json.dump(data, f)
 
         self._stored_score = True
 
     def display_score_list(self) -> None:
-        """displays all the score from highest to lowest"""
-        
+        """displays all the score from highest to lowest"""       
         self._score_list = arcade.SpriteList()
         x_position = 100  # x coordinate of best scores on the screen
         y_position = 430  # y coordinate of the best scores on the screen
@@ -550,15 +529,15 @@ class Game(arcade.Window):
             if len(str(score)) == 1:
                 for num in str(score):
                     self._score_list.append(arcade.Sprite(SCORE[num], 1,
-                                           center_x=x_position,
-                                           center_y=y_position))
+                                            center_x=x_position,
+                                            center_y=y_position))
                     y_position -= 50
 
             if len(str(score)) == 2:
                 for num in str(score):
                     self._score_list.append(arcade.Sprite(SCORE[num], 1, 
-                                           center_x=x_position, 
-                                           center_y=y_position))
+                                            center_x=x_position, 
+                                            center_y=y_position))
                     x_position += 24
                 y_position -= 50
                 x_position = 100
@@ -585,22 +564,21 @@ class Game(arcade.Window):
         if self._state == State.PLAYING:
             self.generate_platform()
             self._player._gravity_on = True
-
+            
             if self._jump:
                 self._player.jump()
                 self._jump = False
-                self._player.center_y -= 2
-               
+                self._player.center_y -= 2  
+            # if player is below zero
             if self._player.center_y <= 0:
-                self._state = State.GAME_OVER
-                
+                self._state = State.GAME_OVER        
             if self._player.top > self.height:
                 self._player.top = self.height
-
+            # if player lands on a platform he gains a point
             if self._player.center_x >= self._platform_sprites[0].center_x and not self._platform_sprites[0]._scored:
                 self._score += 1
                 self._platform_sprites[0]._scored = True
-
+            # checking for collision between player and obstacles
             hit = arcade.check_for_collision_with_list(self._player, 
                                                        self._enemy_sprites)
             if any(hit):
@@ -628,12 +606,11 @@ class Game(arcade.Window):
             self._player.update()
             self._player._gravity_on = False
             self.scoreboard()
-            
             if self._stored_score is False:
                 self.store_score(self.get_score())
                 self.display_score_list()
-                
-                
+         
+         
 def main():
     game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
