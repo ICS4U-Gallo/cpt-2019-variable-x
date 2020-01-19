@@ -61,7 +61,8 @@ def create_outside_walls(maze: List[int]) -> List[int]:
         maze[len(maze) - 1][column] = tile_brick
 
 
-def make_maze_recursive_call(maze: List[int], top: int, bottom: int, left: int, right: int) -> List[int]:
+def make_maze_recursive_call(maze: List[int], top: int, bottom: int,
+                             left: int, right: int) -> List[int]:
     """
     Recursive function to divide up the maze in four sections
     and create three gaps.
@@ -197,6 +198,7 @@ def merge_sort(numbers: List[int]) -> List[int]:
     return sorted_list
 
 
+# Inheritance
 class MenuScreen(arcade.View):
     """Class to display menu screen"""
 
@@ -212,7 +214,7 @@ class MenuScreen(arcade.View):
         arcade.draw_text("You wake up in your office and you realize there is a zombie apocalypse.",
                          screen_width / 2, screen_height - 200,
                          arcade.color.TEAL, font_size=12, anchor_x="center")
-        arcade.draw_text("Get out of the building to go to the nearest safe zone.",
+        arcade.draw_text("Get out of the building with three floors to go to the nearest safe zone.",
                          screen_width / 2, screen_height - 250,
                          arcade.color.TEAL, font_size=12, anchor_x="center")
         arcade.draw_text("Controls:", screen_width / 2, screen_height - 300,
@@ -244,26 +246,26 @@ class Maze(arcade.View):
         super().__init__()
 
         # Sprite lists
-        self.player_list = arcade.SpriteList()
-        self.wall_list = arcade.SpriteList()
-        self.staircase_list = arcade.SpriteList()
+        self._player_list = arcade.SpriteList()
+        self._wall_list = arcade.SpriteList()
+        self._staircase_list = arcade.SpriteList()
 
         # Creates player and staircase
-        self.player_sprite = arcade.Sprite("Chapter 1 Maze/images/persone.png",
-                                           sprite_scaling)
-        self.player_list.append(self.player_sprite)
-        self.staircase_sprite = arcade.Sprite("Chapter 1 Maze/images/staircase.jpg",
-                                              sprite_scaling)
-        self.staircase_list.append(self.staircase_sprite)
+        self._player_sprite = arcade.Sprite("Chapter 1 Maze/images/persone.png",
+                                            sprite_scaling)
+        self._player_list.append(self._player_sprite)
+        self._staircase_sprite = arcade.Sprite("Chapter 1 Maze/images/staircase.jpg",
+                                               sprite_scaling)
+        self._staircase_list.append(self._staircase_sprite)
 
         # Counter to stop the game
-        self.counter = 0
+        self._counter = 0
 
         # Time
-        self.time = 0
+        self._time = 0
 
         # movement list
-        self.movement_queue = []
+        self._movement_queue = []
 
     def on_show(self):
         # Set the background color
@@ -272,11 +274,11 @@ class Maze(arcade.View):
     def setup(self):
         """ Set up the game"""
 
-        self.wall_list = arcade.SpriteList()
+        self._wall_list = arcade.SpriteList()
 
         # Physics engine
-        self.physics_engine = PhysicsEngineSimple(self.player_sprite,
-                                                  self.wall_list)
+        self._physics_engine = PhysicsEngineSimple(self._player_sprite,
+                                                   self._wall_list)
 
         maze = make_maze_recursion(maze_width, maze_height)
 
@@ -286,31 +288,32 @@ class Maze(arcade.View):
         for row in range(maze_height):
             for column in range(maze_width):
                 if maze[row][column] == 1:
-                    wall = arcade.Sprite("Chapter 1 Maze/images/brick.png", sprite_scaling)
+                    wall = arcade.Sprite("Chapter 1 Maze/images/brick.png",
+                                         sprite_scaling)
                     wall.center_x = column * sprite_size + sprite_size / 2
                     wall.center_y = row * sprite_size + sprite_size / 2
-                    self.wall_list.append(wall)
+                    self._wall_list.append(wall)
 
         # Place the player. If in a wall, repeat until it isn't.
         placed = False
         while not placed:
 
             # Positions player
-            self.player_sprite.center_x = 50
-            self.player_sprite.center_y = 50
+            self._player_sprite.center_x = 50
+            self._player_sprite.center_y = 50
 
             # Checks if in a wall
-            walls_hit = arcade.check_for_collision_with_list(self.player_sprite, self.wall_list)
+            walls_hit = arcade.check_for_collision_with_list(self._player_sprite, self._wall_list)
             if len(walls_hit) == 0:
                 # Not in a wall
                 placed = True
 
             # Positions staircase
-            self.staircase_sprite.center_x = 625
-            self.staircase_sprite.center_y = 625
+            self._staircase_sprite.center_x = 625
+            self._staircase_sprite.center_y = 625
 
             # Checks if in a wall
-            walls_hit = arcade.check_for_collision_with_list(self.staircase_sprite, self.wall_list)
+            walls_hit = arcade.check_for_collision_with_list(self._staircase_sprite, self._wall_list)
             if len(walls_hit) == 0:
                 # Not in a wall
                 placed = True
@@ -321,12 +324,12 @@ class Maze(arcade.View):
         arcade.start_render()
 
         # Draw all the sprites.
-        self.wall_list.draw()
-        self.player_list.draw()
-        self.staircase_list.draw()
+        self._wall_list.draw()
+        self._player_list.draw()
+        self._staircase_list.draw()
 
         # Displays the time
-        output = f"Time: {self.time:.3f} seconds"
+        output = f"Time: {self._time:.3f} seconds"
         arcade.draw_text(output,
                          20,
                          screen_height - 20,
@@ -335,67 +338,67 @@ class Maze(arcade.View):
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. Stores in a queue"""
         if key == arcade.key.W:
-            self.movement_queue.insert(0, 'u')
+            self._movement_queue.insert(0, 'u')
         elif key == arcade.key.S:
-            self.movement_queue.insert(0, 'd')
+            self._movement_queue.insert(0, 'd')
         elif key == arcade.key.A:
-            self.movement_queue.insert(0, 'l')
+            self._movement_queue.insert(0, 'l')
         elif key == arcade.key.D:
-            self.movement_queue.insert(0, 'r')
+            self._movement_queue.insert(0, 'r')
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. Stores in a queue"""
         if key == arcade.key.W:
-            self.movement_queue.remove('u')
+            self._movement_queue.remove('u')
         elif key == arcade.key.S:
-            self.movement_queue.remove('d')
+            self._movement_queue.remove('d')
         elif key == arcade.key.A:
-            self.movement_queue.remove('l')
+            self._movement_queue.remove('l')
         elif key == arcade.key.D:
-            self.movement_queue.remove('r')
+            self._movement_queue.remove('r')
 
     def on_update(self, delta_time):
         """ Movement and game logic """
         # Call update on all sprites
-        self.wall_list.update()
-        self.player_list.update()
-        self.staircase_list.update()
-        self.physics_engine.update()
+        self._wall_list.update()
+        self._player_list.update()
+        self._staircase_list.update()
+        self._physics_engine.update()
 
         # Queue for movement. Key release stops movement
-        if len(self.movement_queue) > 0:
-            if self.movement_queue[0] == 'u':
-                self.player_sprite.change_y = speed
-                self.player_sprite.change_x = 0
-            elif self.movement_queue[0] == 'd':
-                self.player_sprite.change_y = -speed
-                self.player_sprite.change_x = 0
-            elif self.movement_queue[0] == 'l':
-                self.player_sprite.change_x = -speed
-                self.player_sprite.change_y = 0
-            elif self.movement_queue[0] == 'r':
-                self.player_sprite.change_x = speed
-                self.player_sprite.change_y = 0
+        if len(self._movement_queue) > 0:
+            if self._movement_queue[0] == 'u':
+                self._player_sprite.change_y = speed
+                self._player_sprite.change_x = 0
+            elif self._movement_queue[0] == 'd':
+                self._player_sprite.change_y = -speed
+                self._player_sprite.change_x = 0
+            elif self._movement_queue[0] == 'l':
+                self._player_sprite.change_x = -speed
+                self._player_sprite.change_y = 0
+            elif self._movement_queue[0] == 'r':
+                self._player_sprite.change_x = speed
+                self._player_sprite.change_y = 0
         else:
-            self.player_sprite.change_y = 0
-            self.player_sprite.change_x = 0
+            self._player_sprite.change_y = 0
+            self._player_sprite.change_x = 0
 
         # Start adding the time
-        self.time += delta_time
+        self._time += delta_time
 
         # Check to see if player touches the staircase
-        for player in self.player_list:
-            hit_list = arcade.check_for_collision_with_list(player, self.staircase_list)
+        for player in self._player_list:
+            hit_list = arcade.check_for_collision_with_list(player, self._staircase_list)
 
         # If player touches the staircase, maze randomly generates again
         for player in hit_list:
             self.setup()
-            self.counter += 1
+            self._counter += 1
 
             # If maze generates 3 times, game will transition to results
-            if self.counter == 3:
+            if self._counter == 3:
                 global time
-                time = self.time
+                time = self._time
                 escaped_building = EscapedBuilding()
                 self.window.show_view(escaped_building)
 
@@ -408,7 +411,8 @@ class EscapedBuilding(arcade.View):
         arcade.start_render()
         # Time used to complete the maze rounded to two decimals
         maze_time = round(time, 2)
-        arcade.draw_text(f"You Have Escaped The Building In {maze_time} Seconds", screen_width / 2, screen_height / 2,
+        arcade.draw_text(f"You Escaped The Building In {maze_time} Seconds",
+                         screen_width / 2, screen_height / 2,
                          arcade.color.TEAL, font_size=20, anchor_x="center")
 
     def on_show(self):
@@ -486,8 +490,21 @@ class PhysicsEngineSimple:
             player_sprite: The moving sprite
             walls: The sprites it can't move through
         """
-        self.player_sprite = player_sprite
-        self.walls = walls
+        self._player_sprite = player_sprite
+        self._walls = walls
+
+        # Encapsulation
+        def get_player_sprite(self):
+            return self._player_sprite
+
+        def set_player_sprite(self, value):
+            self._player_sprite = value
+
+        def get_walls(self):
+            return self._walls
+
+        def set_walls(self, value):
+            self._walls = value
 
     def update(self):
         """Move everything and resolve collisions.
@@ -497,42 +514,42 @@ class PhysicsEngineSimple:
         """
 
         # Move in the x direction
-        self.player_sprite.center_x += self.player_sprite.change_x
+        self._player_sprite.center_x += self._player_sprite.change_x
 
         # Check for wall hit
         hit_list_x = \
-            check_for_collision_with_list(self.player_sprite,
-                                          self.walls)
+            check_for_collision_with_list(self._player_sprite,
+                                          self._walls)
 
         # Hit a wall, move so the edges are at the same point
         if len(hit_list_x) > 0:
-            if self.player_sprite.change_x > 0:
+            if self._player_sprite.change_x > 0:
                 for item in hit_list_x:
-                    self.player_sprite.right = min(item.left,
-                                                   self.player_sprite.right)
-            elif self.player_sprite.change_x < 0:
+                    self._player_sprite.right = min(item.left,
+                                                    self._player_sprite.right)
+            elif self._player_sprite.change_x < 0:
                 for item in hit_list_x:
-                    self.player_sprite.left = max(item.right,
-                                                  self.player_sprite.left)
+                    self._player_sprite.left = max(item.right,
+                                                   self._player_sprite.left)
 
         # Move in the y direction
-        self.player_sprite.center_y += self.player_sprite.change_y
+        self._player_sprite.center_y += self._player_sprite.change_y
 
         # Check for wall hit
         hit_list_y = \
-            check_for_collision_with_list(self.player_sprite,
-                                          self.walls)
+            check_for_collision_with_list(self._player_sprite,
+                                          self._walls)
 
         # Hit a wall, move so the edges are at the same point
         if len(hit_list_y) > 0:
-            if self.player_sprite.change_y > 0:
+            if self._player_sprite.change_y > 0:
                 for item in hit_list_y:
-                    self.player_sprite.top = min(item.bottom,
-                                                 self.player_sprite.top)
+                    self._player_sprite.top = min(item.bottom,
+                                                  self._player_sprite.top)
             else:
                 for item in hit_list_y:
-                    self.player_sprite.bottom = max(item.top,
-                                                    self.player_sprite.bottom)
+                    self._player_sprite.bottom = max(item.top,
+                                                     self._player_sprite.bottom)
 
         # Return list of encountered sprites
         complete_hit_list = hit_list_x
