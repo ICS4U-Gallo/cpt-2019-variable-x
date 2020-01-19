@@ -57,6 +57,13 @@ SCORE = {
 
 
 def bubblesort(numbers: List[int]) -> List[int]:
+    """bubble sort to sort the list from highest to lowest
+     
+     Args:
+        numbers(List[int]): a list of integers
+    Returns:
+        a sorted list
+    """
     n = len(numbers)
 
     for i in range(n):
@@ -66,21 +73,37 @@ def bubblesort(numbers: List[int]) -> List[int]:
 
     return numbers
 
-def binary_search(lst: List[int], target: int) -> int:
+def binary_search(numbers: List[int], target: int) -> int:
+    """binsry search to search for the position of the target in the scores list
+
+    Args:
+        target(int): the number we are looking for
+        numbers(List[int]): a list of integers
+    Returns:
+        the index of the target
+    """
     start = 0
-    end = len(lst) -1
+    end = len(numbers) -1
+   
+    while end >= start: 
 
-    while start < end:
-        mid = (start + end)//2
-        
-        if lst[mid] == target:
+        mid = (start+end)//2
+          
+        # Check if target is present at mid 
+        if numbers[mid] == target: 
             return mid
-        elif lst[mid] < target:
-            end = mid - 1
-        else:
+  
+        # If target is greater, ignore left half 
+        elif target < numbers[mid]: 
             start = mid + 1
-
+  
+        # If target is smaller, ignore right half 
+        else: 
+            end = mid - 1
+      
+    # element not present in list
     return -1
+    
 
 def load_texture_pair(filename: str) -> "SpriteList":
     """
@@ -133,12 +156,20 @@ class PlayerCharacter(arcade.Sprite):
 
         self._jump_texture = load_texture_pair(f"{main_path}_jump.png")
 
+    # getter for gravity status
+    def get_gravity_status(self) -> bool:
+        return self._gravity_on
+
+   # setter for gravity status
+    def set_gravity_on(self, value: bool) -> None:
+        self._gravity_on = value
+
     def update_animation(self, delta_time: float = 1/60) -> None:
         """Updates the animation of the player
+
         Args: 
             delta_time (float): speed of the animation
         """
-
         # Figure out if we need to flip face left or right
         if self.change_x < 0 and self._character_face_direction == RIGHT_FACING:
             self._character_face_direction = LEFT_FACING
@@ -151,11 +182,6 @@ class PlayerCharacter(arcade.Sprite):
             if self._cur_texture > 7 * FRAME_RATE:
                 self._cur_texture = 0
             self.texture = self._walk_textures[self._cur_texture // FRAME_RATE][self._character_face_direction]
-
-        if self._dead:
-            self.angle = 90
-            if self.center_y > self.death_height + self.height//2:
-                self.center_y -= 4
 
         if self._vel > 0:
             self.center_y += 2
@@ -283,7 +309,6 @@ class Game(arcade.Window):
         self._sorted_list = []
         self._stored_score = False
         self._sorted_score = False
-        
         # for loop to generate 100 enemy sprites
         for _ in range(100):
             self._sprite1 = arcade.Sprite()
@@ -292,8 +317,76 @@ class Game(arcade.Window):
             self._sprite1.center_y = random.randrange(200, SCREEN_HEIGHT//2+20)
             self._enemy_sprites.append(self._sprite1)
 
+    # getter for jump status
+    def get_jump_status(self) -> bool:
+        return self._jump
+
+    # setter for jump status
+    def set_jump_stats(self, value: bool) -> None:
+        self._jump = value
+
+    # getter for score
+    def get_score(self) -> int:
+        return self._score
+
+    # setter for score
+    def set_score(self, value: int) -> None:
+        self._score = value
+
+    # getter for state
+    def get_state(self) -> int:
+        return self._state
+
+    # setter for state
+    def set_state(self, value: int) -> None:
+        self._state = value
+
+    # getter for double jump status
+    def get_double_jump_status(self) -> bool:
+        return self._double_jump
+
+    # setter for double jump status
+    def set_double_jump_status(self, value: bool) -> None:
+        self._double_jump = value
+
+    # getter for stored score status
+    def get_stored_score_status(self) -> bool:
+        return self._stored_score
+
+    # setter for stored score status
+    def set_stored_score_status(self, value: bool) -> None:
+        self._stored_score = value
+
+    # getter for stored score status
+    def get_sorted_score_status(self) -> bool:
+        return self._sorted_score
+
+    # setter for stored score status
+    def set_sorted_score_status(self, value: bool) -> None:
+        self._sorted_score = value
+
+   # getter for player rank
+    def get_player_rank(self) -> int:
+        scores_list = []
+        self._sorted_list = []
+        
+        with open("score.json", "r") as f:
+            data = json.load(f)
+        # sort all the scores from highest to lowest
+        for values in data.values():
+            self._sorted_list.append(values)
+            bubblesort(self._sorted_list)
+        # remove any repeating scores
+        for num in self._sorted_list:
+            if num not in scores_list:
+                scores_list.append(num)
+
+        self._player_rank = binary_search(scores_list, list(data.values())[-1])
+
+        return self._player_rank
+
     def setup(self) -> None:
-        """Sets up sprites for the game"""
+        """Sets up sprites and variables for the game"""
 
         self._score = 0
         self._score_board = arcade.SpriteList()
@@ -301,9 +394,7 @@ class Game(arcade.Window):
         self._background = arcade.load_texture(random.choice(background))
         self._platform_sprites = arcade.SpriteList()
         self._player_list = arcade.SpriteList()
-        self._scores_list = []
-        self._five_best = []
-
+        # create the first platform you see on sreen
         start_platform1 = Platform.random_platform_generator()
         self._platform_sprites.append(start_platform1)
         self._player = PlayerCharacter()
@@ -369,7 +460,7 @@ class Game(arcade.Window):
             arcade.draw_texture_rectangle(self.width//2, self.height//2 - 50, 
                                           texture.width, texture.height, 
                                           texture, 0)
-            arcade.draw_text(f"Congratulations you are number {self._player_rank + 1}", 
+            arcade.draw_text(f"Congratulations you are number {self.get_player_rank() + 1}", 
                               10, SCREEN_HEIGHT//2 - 200, arcade.color.BLACK, 25)
             arcade.draw_text("Top Five", 75, 455, arcade.color.YELLOW_ORANGE, 20)
             arcade.draw_text("Current Score", SCREEN_WIDTH - 175, 455,
@@ -416,12 +507,15 @@ class Game(arcade.Window):
 
     def store_score(self, score: int) -> None:
         """stores the score when game is over
+
         Args:
             score(int): the player's score
         """
         with open("score.json", "r") as f:
             data = json.load(f)
+
         data[f"user {len(data) + 1}"] = score
+        
         with open("score.json", "w") as f:
             json.dump(data, f)
 
@@ -433,9 +527,8 @@ class Game(arcade.Window):
         self._score_list = arcade.SpriteList()
         x_position = 100  # x coordinate of best scores on the screen
         y_position = 430  # y coordinate of the best scores on the screen
-        self._scores_list = []
-        self._five_best = []
-        self._player_rank = 0
+        scores_list = []
+        five_best = []
         # calling the json file to load the dictionary of scores
         with open("score.json", "r") as f:
             data = json.load(f)
@@ -445,17 +538,15 @@ class Game(arcade.Window):
             bubblesort(self._sorted_list)
         # remove any repeating scores
         for num in self._sorted_list:
-            if num not in self._scores_list:
-                self._scores_list.append(num)
-        # get the rank of the player by using binary search
-        self._player_rank = binary_search(self._scores_list, list(data.values())[-1])
+            if num not in scores_list:
+                scores_list.append(num)
         # only draw the five best scores
-        if len(self._scores_list) < 6:
-            self._five_best = self._scores_list
+        if len(scores_list) < 6:
+            five_best = scores_list
         else:
-            self._five_best = self._scores_list[:5]
-         
-        for score in self._five_best:
+            five_best = scores_list[:5]
+        # for loop to draw the score on screen
+        for score in five_best:
             if len(str(score)) == 1:
                 for num in str(score):
                     self._score_list.append(arcade.Sprite(SCORE[num], 1,
@@ -539,7 +630,7 @@ class Game(arcade.Window):
             self.scoreboard()
             
             if self._stored_score is False:
-                self.store_score(self._score)
+                self.store_score(self.get_score())
                 self.display_score_list()
                 
                 
