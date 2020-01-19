@@ -482,7 +482,6 @@ class PhysicsEngineSimple:
 
     def __init__(self, player_sprite, walls):
         """Create a simple physics engine.
-
         Args:
             player_sprite: The moving sprite
             walls: The sprites it can't move through
@@ -492,7 +491,6 @@ class PhysicsEngineSimple:
 
     def update(self):
         """Move everything and resolve collisions.
-
         Returns:
             Sprite list with all sprites contacted.
             Empty list if no sprites.
