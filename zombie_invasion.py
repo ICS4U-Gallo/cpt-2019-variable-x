@@ -85,6 +85,7 @@ def binarySearch (numbers, l, length, x):
 
 class Player(arcade.Sprite):
     """Player class, has all the important details for the player which later are inherited."""
+    """Not encapsulated since these values are changed often and inherited."""
     def __init__(self):
         self.player_sprite = arcade.Sprite(":resources:/images/animated_characters/male_adventurer/maleAdventurer_idle.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.center_x = WIDTH / 2
@@ -93,6 +94,36 @@ class Player(arcade.Sprite):
         self.player_list.append(self.player_sprite)
         self.player_speed = 3
 
+class Boss(arcade.Sprite):
+    """Boss Zombie class, has more features than regular zombies"""
+    HEALTH = 250
+    def follow_player(self, player_sprite):
+        """
+        Moves the zombies towards the player sprite.
+        """
+        #Created so their movement is not linear
+        #Their movement doesn't remain static, updates constantly depending on
+        #player position.
+        self.center_x += self.change_x
+        self.center_y += self.change_y
+
+        #sets up the start positions.
+        start_x = self.center_x
+        start_y = self.center_y
+
+        # Get the destination location the player
+        destination_x = player_sprite.center_x
+        destination_y = player_sprite.center_y
+
+        #Find the difference between the desination of x/y and the start of x/y
+        x_difference = destination_x - start_x
+        y_difference = destination_y - start_y
+        angle = math.atan2(y_difference, x_difference)
+
+        #Using the angle, calculate the velocity needed off of a base movement speed of 0.35
+        #The big zombie is strong and large, but very slow.
+        self.change_x = math.cos(angle) * 0.35
+        self.change_y = math.sin(angle) * 0.35
 
 class MenuView(arcade.View):
     """Main menu/title screen"""
@@ -144,7 +175,7 @@ class HighscoreInput(arcade.View):
         highscore = MyGame().SCORE
         arcade.start_render()
         arcade.draw_text("GAME OVER", WIDTH/2, 400, color = arcade.color.WHITE, font_size = 30, anchor_x="center")
-        arcade.draw_text(f"The zombies have forced you to flee! \n Even so, you fought to the bone, achieving a zombie kill count of: {highscore}", WIDTH/2, HEIGHT/2,
+        arcade.draw_text(f"The zombies have forced you to run! \n Even so, you fought to the bone, achieving a score of: {highscore}", WIDTH/2, HEIGHT/2,
                          arcade.color.BLACK, font_size=15, anchor_x="center")
         arcade.draw_text("Click to see other highscores", WIDTH/2, HEIGHT/2-75,
                          arcade.color.WHITE, font_size=20, anchor_x="center")
@@ -196,9 +227,9 @@ class HighscoreView(arcade.View):
             height_decrease -= 20
         #reverse the range so it is displayed highest to lowest, only showing top 5.
         yourscore = MyGame.SCORE
-        yourposition = binarySearch(sorted_list2, 0, len(sorted_list2)-1, yourscore)
+        yourposition = binarySearch(sorted_list2, 0, len(sorted_list2), yourscore)
         if yourposition != -1:
-            arcade.draw_text(f"You placed number {yourposition} on the highscore charts!", WIDTH/2, 300, arcade.color.BLACK, font_size=18, anchor_x="center")
+            arcade.draw_text(f"You placed number {yourposition + 1} on the highscore charts!", WIDTH/2, 300, arcade.color.BLACK, font_size=18, anchor_x="center")
         arcade.draw_text("Click to continue", WIDTH/2, HEIGHT/2-250,
                          arcade.color.WHITE, font_size=20, anchor_x="center")
         #if yourposition is not equal to negative 1, the binary search worked
@@ -209,7 +240,8 @@ class Zombie(arcade.Sprite):
     """
     Zombie class to create their movement
     """
-
+    #Health so they are not so easy to eliminate.
+    HEALTH = 100
     def follow_player(self, player_sprite):
         """
         Moves the zombies towards the player sprite.
@@ -239,15 +271,17 @@ class Zombie(arcade.Sprite):
         self.change_x = math.cos(angle) * 0.5
         self.change_y = math.sin(angle) * 0.5
 
-
-
 class MyGame(arcade.View, Player):
+    """Main game class, creates everything"""
     #Class variables needed to be accessed or changed by other iterations within the class
     #Accessed by things outside the class.
+    #Inherits the player class to use it's attributes to make the player
+    BOSS_ZOMBIE_COUNT = 1
     ZOMBIE_COUNT = 5
     SCORE = 0
 
     def __init__(self):
+        """Initializes game"""
         Player.__init__(self)
         super().__init__()
         #Encapsulate everything here since it is important these items are not
@@ -263,6 +297,7 @@ class MyGame(arcade.View, Player):
         """Sets up the zombies"""
         #zombie sprite list
         self.zombie_list = arcade.SpriteList()
+        self.bosszombie_list = arcade.SpriteList()
         for i in range(MyGame.ZOMBIE_COUNT):
             zombie = Zombie(":resources:/images/animated_characters/zombie/zombie_idle.png", SPRITE_SCALING_ZOMBIE)
             zombie_placed = False
@@ -270,7 +305,7 @@ class MyGame(arcade.View, Player):
             while not zombie_placed:
                 # Position the zombie randomly
                 zombie.center_x = random.randrange(800)
-                zombie.center_y = random.randrange(400, 600)
+                zombie.center_y = random.randrange(600, 700)
                 # See if the zombie is hitting another zombie
                 zombie_hit_list = arcade.check_for_collision_with_list(zombie, self.zombie_list)
                 #See if the zombie is hitting the player
@@ -278,8 +313,28 @@ class MyGame(arcade.View, Player):
                 if len(zombie_hit_list) == 0 and len(player_hit_list) == 0:
                     # If both are not hitting the player and zombie, then the zombie will be placed.
                     zombie_placed = True
-
+            #append to the list
             self.zombie_list.append(zombie)
+        #for loop for the boss zombies
+        for i in range(MyGame.BOSS_ZOMBIE_COUNT):
+            bosszombie = Boss(":resources:/images/animated_characters/zombie/zombie_idle.png", 0.65)
+            bosszombie_placed = False
+            # Loop to keep checking their positioning
+            while not bosszombie_placed:
+                # Position the zombie randomly
+                bosszombie.center_x = random.randrange(800)
+                bosszombie.center_y = random.randrange(600, 700)
+                # See if the zombie is hitting another zombie
+                zombie_hit_list = arcade.check_for_collision_with_list(bosszombie, self.zombie_list)
+                #See if the zombie is hitting the player
+                player_hit_list = arcade.check_for_collision_with_list(bosszombie, self.player_list)
+                #Check to see if colliding with another boss zombie
+                bosszombie_hit_list = arcade.check_for_collision_with_list(bosszombie, self.bosszombie_list)
+                if len(zombie_hit_list) == 0 and len(player_hit_list) == 0 and len(bosszombie_hit_list) == 0:
+                    # If both are not hitting the player and zombie, then the zombie will be placed.
+                    bosszombie_placed = True
+            #Append to list
+            self.bosszombie_list.append(bosszombie)
 
     def on_show(self):
         """Shows the view"""
@@ -292,12 +347,19 @@ class MyGame(arcade.View, Player):
         self.player_list.draw()
         self.zombie_list.draw()
         self._bullet_list.draw()
+        self.bosszombie_list.draw()
         #Text counters of everything the user needs to be informed of.
-        arcade.draw_text(f"Zombies Eliminated: {self._score}", 10, 20, arcade.color.WHITE, 14)
+        arcade.draw_text(f"Score: {self._score}", 10, 20, arcade.color.WHITE, 14)
 
         arcade.draw_text(f"Lives: {self._lives}", 720, 20, arcade.color.WHITE, 14)
 
         arcade.draw_text(f"WAVE: {self._wave}", 720, 500, arcade.color.WHITE, 14)
+
+        for bosszombie in self.bosszombie_list:
+            arcade.draw_text(f"Health: {bosszombie.HEALTH}", bosszombie.center_x, bosszombie.top, arcade.color.RED, 12)
+
+        for zombie in self.zombie_list:
+            arcade.draw_text(f"Health: {zombie.HEALTH}", zombie.center_x, zombie.top, arcade.color.WHITE, 10)
 
     def on_key_press(self, key, modifiers):
         """Player movement on key press."""
@@ -349,8 +411,6 @@ class MyGame(arcade.View, Player):
         #add to the bullet list
         self._bullet_list.append(bullet)
 
-
-
     def on_key_release(self, key, modifiers):
         """Called when a key is released. 
             Makes it so that you cant keep sliding in a direction"""
@@ -359,17 +419,18 @@ class MyGame(arcade.View, Player):
             self.player_sprite.change_y = 0
         elif key == arcade.key.A or key == arcade.key.D:
             self.player_sprite.change_x = 0
-
-
  
     def on_update(self, delta_time):
         """Updates everything"""
         self._bullet_list.update()
         self.zombie_list.update()
         self.player_list.update()
+        self.bosszombie_list.update()
         #Calls the follow player code to trace your character
         for zombie in self.zombie_list:
             zombie.follow_player(self.player_sprite)
+        for bosszombie in self.bosszombie_list:
+            bosszombie.follow_player(self.player_sprite)
         #make sure you can't go past the screen
         if self.player_sprite.center_x < 20:
             self.player_sprite.center_x = 20
@@ -385,17 +446,34 @@ class MyGame(arcade.View, Player):
         #setting up bullets
         for bullet in self._bullet_list:
             hit_list = arcade.check_for_collision_with_list(bullet, self.zombie_list)
+            boss_hit_list = arcade.check_for_collision_with_list(bullet, self.bosszombie_list)
         #If something is hit, the bullet is removed
         #Since the list is greater than 0, things
         #can be removed.
             if len(hit_list) > 0:
                 bullet.remove_from_sprite_lists()
+            if len(boss_hit_list) > 0:
+                bullet.remove_from_sprite_lists()
         #For each zombie in the hit list, they get removed
         #Adds to your score, hidden score to keep track
+            for bosszombie in boss_hit_list:
+                if bosszombie.HEALTH == 50:
+                    bosszombie.remove_from_sprite_lists()
+                    self._score += 3
+                    self._hidden_score += 1
+                    #If you beat the zombie, you gain more score points
+                else:
+                    bosszombie.HEALTH -= 50
+                    #bullets have the same effect, just take longer to kill them
+
             for zombie in hit_list:
-                zombie.remove_from_sprite_lists()
-                self._score += 1
-                self._hidden_score += 1
+                if zombie.HEALTH == 50:
+                    zombie.remove_from_sprite_lists()
+                    self._score += 1
+                    self._hidden_score += 1
+                else:
+                    zombie.HEALTH -= 50
+                    #bullets go right through them like butter
         #If the bottom of the bullet goes past the screen height
         #remove it from the lists
             if bullet.bottom > SCREEN_HEIGHT:
@@ -404,22 +482,26 @@ class MyGame(arcade.View, Player):
         for zombie in self.zombie_list:       
             if self.player_sprite.collides_with_sprite(zombie):
                 self._lives -= 1
+        for bosszombie in self.bosszombie_list:
+            if self.player_sprite.collides_with_sprite(bosszombie):
+                self._lives -= 1
         #Core of the game, calls the setup function to repeat
         #the creation of zombies as long as you have above 0
         #lives. Adds an amount of zombies everytime in order
         #to create more zombies on the setup() call.
         while self._lives > 0:
-            if self._hidden_score == MyGame.ZOMBIE_COUNT:
+            if self._hidden_score == MyGame.ZOMBIE_COUNT + MyGame.BOSS_ZOMBIE_COUNT:
                 #if the hidden_score is equal to the zombie count,
                 #the process begins.
                 current_score = self._score
                 MyGame.ZOMBIE_COUNT += 3
+                MyGame.BOSS_ZOMBIE_COUNT += 1
                 print(MyGame.ZOMBIE_COUNT)
                 self.setup()
                 self._hidden_score = 0
                 self._score = current_score
                 self._wave += 1
-                #add more waves, keep track of score. Reset hidden score.
+                #Add more waves, keep track of score. Reset hidden score.
                 #Hidden score is used to keep track of how many zombies youve
                 #killed after the zombie count is updated. The regular score keeps
                 #going, while hidden score gets reset in order to continue counting
@@ -433,14 +515,14 @@ class MyGame(arcade.View, Player):
             highscore_input = HighscoreInput()
             self.window.show_view(highscore_input) 
         
-
-
 def main():
+    """Main function to set up windows"""
     window = arcade.Window(WIDTH, HEIGHT, "Zombie Invasion")
     menu_view = MenuView()
     window.show_view(menu_view)
     arcade.run()
-
+    #runs the code
 
 if __name__ == "__main__":
+    """Starts the file"""
     main()
