@@ -1,10 +1,3 @@
-"""
-Hack&/
-To-do:
-sort the highscores using bubble sort  
-recursively spawn enemies based on level
-GUI
-"""
 
 import arcade
 import math
