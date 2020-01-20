@@ -59,7 +59,8 @@ SCORE = {
     '9': 'Objects' + os.sep + 'sprites' + os.sep + '9.png', }
 
 class Algorithm:
-
+    """class algorithm
+    """
     @staticmethod
     def bubblesort(numbers: List[int]) -> List[int]:
         """bubble sort to sort the list from highest to lowest
@@ -69,17 +70,15 @@ class Algorithm:
             a sorted list
         """
         n = len(numbers)
-
         for i in range(n):
             for j in range(n - i - 1):
                 if numbers[j] < numbers[j + 1]:
                     numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
-
         return numbers
 
     @staticmethod
     def binary_search(numbers: List[int], target: int) -> int:
-        """binsry search to search for the position of the target in the scores list
+        """binary search to search for the position of the target in the scores list
         Args:
             target(int): the number we are looking for
             numbers(List[int]): a list of integers
@@ -650,7 +649,7 @@ class Game(arcade.Window):
                 self.store_score(self.get_score())
                 self.display_score_list()
             
-            if self._score >= 2:
+            if self._score >= 10:
                 self._checkpoint = True
 
 
