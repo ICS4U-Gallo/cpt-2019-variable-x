@@ -20,7 +20,12 @@ BULLET_SPEED = 7
 
 
 def merge_sort(numbers: List[int]) -> List[int]:
-    """merge sort for highscore, changed to go from highest to lowest"""
+    """merge sort for highscore, changed to go from highest to lowest
+    Args:
+        The list to be sorted
+    Returns:
+        The sorted list.
+    """
     # base case
     if len(numbers) == 1:
         return numbers
@@ -61,7 +66,15 @@ def merge_sort(numbers: List[int]) -> List[int]:
 
 
 def binarySearch(numbers, l, length, x):
-    """Binary search to find your score in the list"""
+    """Binary search to find your score in the list
+    Args:
+        numbers: List
+        1: sets up starting point
+        length: length of the list
+        x: target point
+    Return:
+        Index of x
+    """
     # Check base case, if the length is greater than or equal to 1, start the
     # code.
     if length >= l:
@@ -100,8 +113,11 @@ class Boss(arcade.Sprite):
     HEALTH = 300
 
     def follow_player(self, player_sprite):
-        """
-        Moves the zombies towards the player sprite.
+        """Moves the zombies towards the player sprite.
+        Args:
+            player_sprite
+        Returns:
+            the code to position the zombie towards the player.
         """
         # Created so their movement is not linear
         # Their movement doesn't remain static, updates constantly depending on
@@ -195,7 +211,14 @@ class HighscoreInput(arcade.View):
                          arcade.color.WHITE, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
-        """On mouse click, inputs highscore and goes to next view"""
+        """On mouse click, inputs highscore and goes to next view
+        Args:
+            x, y position of the mosue
+            button click
+            various modifiers
+        Returns:
+            the next slide
+        """
         highscore = MyGame().SCORE
         # highscore is the score class variable from main game class.
         with open("data.json", "r") as f:
@@ -254,7 +277,7 @@ class HighscoreView(arcade.View):
         # score from the merge sorted list
     
     def on_mouse_press(self, _x, _y, _button, _modifiers):
-        """Changes view when clicked"""
+        """Changes view when clicked, same args and returns as other on_mouse_press functions"""
         self.window.close()   
         window = arcade.Window(800, 800, "Conclusion")
         conclusion_view = ConclusionView()
@@ -269,9 +292,11 @@ class Zombie(arcade.Sprite):
     HEALTH = 150
 
     def follow_player(self, player_sprite):
-
-        """
-        Moves the zombies towards the player sprite.
+        """Moves the zombies towards the player sprite.
+        Args:
+            player_sprite
+        Returns:
+            the code to position the zombie towards the player.
         """
         # Created so their movement is not linear
         # Their movement doesn't remain static, updates constantly depending on
