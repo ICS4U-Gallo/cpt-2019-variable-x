@@ -8,30 +8,16 @@ from zombie_invasion import *
 # dimensions of the screen
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
-
 # variables for the character animation
 CHARACTER_SCALING = 0.4
 MOVEMENT_SPEED = 5
 FRAME_RATE = 7
-
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
 LEFT_FACING = 1
 Gravity = 2.5
 jump_speed = 2.5
-
-
-class State():
-    '''
-    First class State() to create different game status of the player
-    '''
-    MAIN_MENU = 0
-    PLAYING = 1
-    GAME_OVER = 2
-
-# List of different background images that are chosen randomly by the random
-# function
-
+# file names of images used in the game
 background = ["Objects" + os.sep + "sprites" + os.sep + "officebackground.jpg"]
 platform = "Objects" + os.sep + "sprites" + os.sep + "platform2.png"
 player = "Objects" + os.sep + "sprites" + os.sep + "officeguy.png"
@@ -44,7 +30,6 @@ volume = "Objects" + os.sep + "sprites" + os.sep + "soundup.png"
 highscore = "Objects" + os.sep + "sprites" + os.sep + "highscore.png"
 gameover = "Objects" + os.sep + "sprites" + os.sep + "gameover2.png"
 next_chapter = "Objects" + os.sep + "sprites" + os.sep + "next.png"
-
 # Images for the different numbers used in scoring
 SCORE = {
     '0': 'Objects' + os.sep + 'sprites' + os.sep + '0.png',
@@ -57,6 +42,15 @@ SCORE = {
     '7': 'Objects' + os.sep + 'sprites' + os.sep + '7.png',
     '8': 'Objects' + os.sep + 'sprites' + os.sep + '8.png',
     '9': 'Objects' + os.sep + 'sprites' + os.sep + '9.png', }
+
+
+class State():
+    '''
+    First class State() to create different game status of the player
+    '''
+    MAIN_MENU = 0
+    PLAYING = 1
+    GAME_OVER = 2
 
 class Algorithm:
     """class algorithm
