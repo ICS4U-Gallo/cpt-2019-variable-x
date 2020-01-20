@@ -356,15 +356,15 @@ class Game(arcade.Window):
     # getter for player rank
     def get_player_rank(self) -> int:
         scores_list = []
-        self._sorted_list = []
+        sorted_list = []
         with open("score.json", "r") as f:
             data = json.load(f)
         # sort all the scores from highest to lowest
         for values in data.values():
-            self._sorted_list.append(values)
-            bubblesort(self._sorted_list)
+            sorted_list.append(values)
+            bubblesort(sorted_list)
         # remove any repeating scores
-        for num in self._sorted_list:
+        for num in sorted_list:
             if num not in scores_list:
                 scores_list.append(num)
 
@@ -535,15 +535,16 @@ class Game(arcade.Window):
         y_position = 430  # y coordinate of the best scores on the screen
         scores_list = []
         five_best = []
+        sorted_list = []
         # calling the json file to load the dictionary of scores
         with open("score.json", "r") as f:
             data = json.load(f)
         # sort all the scores from highest to lowest
         for values in data.values():
-            self._sorted_list.append(values)
-            bubblesort(self._sorted_list)
+            sorted_list.append(values)
+            bubblesort(sorted_list)
         # remove any repeating scores
-        for num in self._sorted_list:
+        for num in sorted_list:
             if num not in scores_list:
                 scores_list.append(num)
         # only draw the five best scores
