@@ -102,8 +102,8 @@ class AntiVirus(arcade.Sprite):
             y_diff = dest_y - start_y
             angle = math.atan2(y_diff, x_diff)
 
-            self.change_x = math.cos(angle) * ANTIVIRUS_SPEED
-            self.change_y = math.sin(angle) * ANTIVIRUS_SPEED
+            self.change_x = math.cos(-angle) * ANTIVIRUS_SPEED
+            self.change_y = math.sin(-angle) * ANTIVIRUS_SPEED
 
 
 class Coin(arcade.Sprite):
