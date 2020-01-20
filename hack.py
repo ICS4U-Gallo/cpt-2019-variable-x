@@ -219,14 +219,14 @@ class MyGame(arcade.Window):
             wall.center_y = 1300
             self.wall_list.append(wall)
 
-        for coordinate in range(0, 1000, 200):
+        for coordinate in range(0, 1200, 200):
             # Create left wall
             wall = arcade.Sprite("images/vaporwaveblock.png", 0.4)
             wall.center_x = -200
             wall.center_y = coordinate
             self.wall_list.append(wall)
 
-        for coordinate2 in range(0, 1000, 200):
+        for coordinate2 in range(0, 1200, 200):
             # Create right wall
             wall = arcade.Sprite("images/vaporwaveblock.png", 0.4)
             wall.center_x = 1500
