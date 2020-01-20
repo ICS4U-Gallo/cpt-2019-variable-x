@@ -40,8 +40,6 @@ RIGHT_VIEWPORT_MARGIN = 500
 BOTTOM_VIEWPORT_MARGIN = 50
 TOP_VIEWPORT_MARGIN = 200
 
-sorted_list = []
-
 
 def binary_search(lst: List[int], target: int) -> int:
     """ Creates an empty grid.
@@ -102,8 +100,8 @@ class AntiVirus(arcade.Sprite):
             y_diff = dest_y - start_y
             angle = math.atan2(y_diff, x_diff)
 
-            self.change_x = math.cos(-angle) * ANTIVIRUS_SPEED
-            self.change_y = math.sin(-angle) * ANTIVIRUS_SPEED
+            self.change_x = math.cos(angle) * ANTIVIRUS_SPEED
+            self.change_y = math.sin(angle) * ANTIVIRUS_SPEED
 
 
 class Coin(arcade.Sprite):
@@ -126,8 +124,8 @@ class Coin(arcade.Sprite):
             y_diff = dest_y - start_y
             angle = math.atan2(y_diff, x_diff)
 
-            self.change_x = (math.cos(angle) * COIN_SPEED)
-            self.change_y = (math.sin(angle) * COIN_SPEED)
+            self.change_x = (math.cos(-angle) * COIN_SPEED)
+            self.change_y = (math.sin(-angle) * COIN_SPEED)
 
 
 class MyGame(arcade.Window):
@@ -157,7 +155,10 @@ class MyGame(arcade.Window):
         self.collect_coin_sound = arcade.load_sound("SFX/buttonclick.wav")
         self.jump_sound = arcade.load_sound("SFX/EEnE Whoosh 8.wav")
 
+        # Background color
         arcade.set_background_color(arcade.csscolor.BLACK)
+
+        # Load instructions
         self.current_state = INSTRUCTIONS_PAGE_0
         self.instructions = []
         texture = arcade.load_texture("images/GameStart.png")
@@ -166,6 +167,7 @@ class MyGame(arcade.Window):
         texture1 = arcade.load_texture("images/no.png")
         self.instructions.append(texture1)
 
+        # Keep track of background
         self.background = None
 
     def setup(self):
@@ -205,7 +207,7 @@ class MyGame(arcade.Window):
         self.player_list.append(self.player_sprite)
 
         # Create the ground
-        for x in range(-200, 10000, 64):
+        for x in range(-200, 2000, 64):
             wall = arcade.Sprite("images/vaporwaveblock.png", 0.4)
             wall.center_x = x
             wall.center_y = 32
@@ -355,9 +357,7 @@ class MyGame(arcade.Window):
         for score in self._five_best:
             if len(str(score)) == 1:
                 for num in str(score):
-                    self._score_list.append("images/redstone.jpg", 1,
-                                            center_x=x_position,
-                                            center_y=y_position)
+                    self._score_list.append()
                     y_position -= 50
 
             if len(str(score)) == 2:
@@ -369,15 +369,11 @@ class MyGame(arcade.Window):
                 y_position -= 50
                 x_position = 100
 
-    def draw_score_board(self) -> None:
-        # function that loads the texture to draw the score
-        self._score_board.draw()
-        self._score_list.draw()
-
     def draw_game_over(self):
         """
         Draw "Game over" across the screen.
         """
+
         output = "Hacking Failed, Trojan Compromised"
         arcade.draw_text(output, self.view_left, self.view_bottom + 300,
                          arcade.color.RED, 44)
@@ -386,33 +382,37 @@ class MyGame(arcade.Window):
         arcade.draw_text(output, self.view_left + 60, self.view_bottom + 200,
                          arcade.color.WHITE, 24)
 
-        self.scoreboard()
-
-        self.draw_score_board()
-
-        arcade.draw_text(times, self.view_left + 60, self.view_bottom + 200,
-                         arcade.color.WHITE, 24)
-
-        self.display_score_list()
-
     def draw_game_win(self):
         """
         Draw "You win" across the screen.
         """
         output = "Mainframe successfully hacked."
-        arcade.draw_text(output, self.view_left, self.view_bottom + 300,
+        arcade.draw_text(output, self.view_left, self.view_bottom + 600,
                          arcade.color.GREEN, 54)
 
         output_highscores = f"Hacked in {round(self.total_time, 2)} seconds."
 
         arcade.draw_text(str(output_highscores), self.view_left,
-                         self.view_bottom, arcade.color.WHITE, 54)
+                         self.view_bottom, arcade.color.WHITE, 44)
 
-        self.scoreboard()
+        arcade.draw_text("Fastest Hacks:", self.view_left,
+                         self.view_bottom + 400, arcade.color.WHITE, 34)
 
-        self.draw_score_board()
+        height_decrease = 0
+        sorted_list = []
+        with open("hack_times.json", "r") as f:
+            data = json.load(f)
 
-        self.display_score_list()
+        for values in data.values():
+            sorted_list.append(values)
+            sorted_list2 = bubblesort(sorted_list)
+
+        for i in reversed(range(0, 5)):
+            arcade.draw_text(f"{i + 1}: {sorted_list2[i]} seconds \n",
+                             self.view_left + 60,
+                             self.view_bottom + 300 - height_decrease,
+                             arcade.color.WHITE, 24)
+            height_decrease += 40
 
     def on_draw(self):
         """Render the screen."""
@@ -421,9 +421,11 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         # Draw the background texture
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 +
-                                      100, self.background.width,
-                                      self.background.height, self.background)
+        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2 + 200,
+                                      SCREEN_HEIGHT // 2 + 300,
+                                      self.background.width * 1.5,
+                                      self.background.height * 1.5,
+                                      self.background)
 
         n = len(self.antivirus_list)
 
@@ -443,7 +445,6 @@ class MyGame(arcade.Window):
             self.draw_game()
 
         elif self.current_state == GAME_WIN:
-            self.store_score(round(self.total_time, 1))
             self.draw_game_win()
 
         else:
@@ -469,7 +470,7 @@ class MyGame(arcade.Window):
             self.current_state = GAME_RUNNING
 
         elif self.current_state == GAME_WIN:
-            self.store_score(round(self.total_time, 1))
+            self.store_score(round(self.total_time, 2))
             self.setup()
             self.current_state = INSTRUCTIONS_PAGE_0
 
