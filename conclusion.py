@@ -3,9 +3,11 @@ WIDTH = 800
 HEIGHT = 800
 SCREEN_TITLE = "Conclusion"
 
-class MenuView(arcade.View):
+class ConclusionView(arcade.View):
+    
     def on_show(self):
         arcade.set_background_color(arcade.color.BLACK)
+    
     def on_draw(self):
         arcade.start_render()
         arcade.draw_text("THE END", WIDTH/2, 650, color = arcade.color.WHITE, font_size = 30, anchor_x="center")
@@ -18,16 +20,16 @@ class MenuView(arcade.View):
         arcade.draw_text("We must thank you for completing all the challenges sent at you!", WIDTH/2, 300, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
         arcade.draw_text("Now it is time to start your first day as a manger.", WIDTH/2, 250, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
         arcade.draw_text("CLICK TO EXIT", WIDTH/2, 100, color = arcade.color.YELLOW, font_size = 15, anchor_x="center")
+    
     def on_mouse_press(self, _x, _y, _button, _modifiers):
         self.window.close()
-
 
 
 def main():
     """Main function to set up windows"""
     window = arcade.Window(WIDTH, HEIGHT, SCREEN_TITLE)
-    menu_view = MenuView()
-    window.show_view(menu_view)
+    conclusion_view = ConclusionView()
+    window.show_view(conclusion_view)
     arcade.run()
     # runs the code
 

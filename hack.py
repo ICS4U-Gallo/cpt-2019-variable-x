@@ -4,6 +4,7 @@ import os
 import random
 import json
 from typing import List, Dict
+from final_master import *
 
 # Constants
 SCREEN_WIDTH = 1080
@@ -410,8 +411,11 @@ class MyGame(arcade.Window):
 
         elif self.current_state == GAME_WIN:
             self.store_score(round(self.total_time, 2))
-            self.setup()
-            self.current_state = INSTRUCTIONS_PAGE_0
+            arcade.close_window()
+            game = Game(500, 500)
+            game.setup()
+            arcade.run()
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """

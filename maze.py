@@ -4,6 +4,7 @@ import timeit
 import json
 from typing import List
 from arcade import *
+from hack import *
 
 sprite_scaling = 0.25
 sprite_size = 128 * sprite_scaling
@@ -396,7 +397,7 @@ class Maze(arcade.View):
             self._counter += 1
 
             # If maze generates 3 times, game will transition to results
-            if self._counter == 1:
+            if self._counter == 3:
                 global time
                 time = self._time
                 escaped_building = EscapedBuilding()
@@ -479,6 +480,13 @@ class Highscores(arcade.View):
         arcade.draw_text("Click to continue", screen_width / 2,
                          screen_height / 2 - 250,
                          arcade.color.TEAL, font_size=20, anchor_x="center")
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        arcade.close_window()
+        # Transition to next game
+        window = MyGame()
+        window.setup()
+        arcade.run()
 
 
 class PhysicsEngineSimple:

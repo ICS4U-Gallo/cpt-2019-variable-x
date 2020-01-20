@@ -4,6 +4,7 @@ import arcade
 import json
 from typing import List
 import math
+from conclusion import *
 
 # Set up variables
 SPRITE_SCALING_PLAYER = 0.5
@@ -251,10 +252,14 @@ class HighscoreView(arcade.View):
         # if yourposition is not equal to negative 1, the binary search worked
         # Shows your position on the chart using binary search to find your
         # score from the merge sorted list
-        def on_mouse_press(self, _x, _y, _button, _modifiers):
-            """Changes view when clicked"""
-            pass            
-
+    
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """Changes view when clicked"""
+        self.window.close()   
+        window = arcade.Window(800, 800, "Conclusion")
+        conclusion_view = ConclusionView()
+        window.show_view(conclusion_view)
+        arcade.run()
 
 class Zombie(arcade.Sprite):
     """
