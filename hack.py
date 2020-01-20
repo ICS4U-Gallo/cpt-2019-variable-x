@@ -330,13 +330,14 @@ class MyGame(arcade.Window):
         arcade.draw_text(output, self.view_left, self.view_bottom + 600,
                          arcade.color.GREEN, 54)
 
-        output_highscores = f"Hacked in {round(self.total_time, 2)} seconds."
+        output_highscores = (f"Hacked in {round(self.total_time, 2)} seconds. "
+                             "Click to escape.")
 
         arcade.draw_text(str(output_highscores), self.view_left,
-                         self.view_bottom, arcade.color.WHITE, 44)
+                         self.view_bottom, arcade.color.GREEN, 44)
 
         arcade.draw_text("Fastest Hacks:", self.view_left,
-                         self.view_bottom + 400, arcade.color.WHITE, 34)
+                         self.view_bottom + 400, arcade.color.GREEN, 34)
 
         height_decrease = 0
         sorted_list = []
