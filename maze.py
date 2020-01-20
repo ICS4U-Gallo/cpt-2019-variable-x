@@ -14,7 +14,7 @@ screen_height = 670
 
 title = "Maze"
 
-speed = 4
+speed = 3
 
 tile_empty = 0
 tile_brick = 1
@@ -397,7 +397,7 @@ class Maze(arcade.View):
             self._counter += 1
 
             # If maze generates 3 times, game will transition to results
-            if self._counter == 3:
+            if self._counter == 1:
                 global time
                 time = self._time
                 escaped_building = EscapedBuilding()
@@ -482,7 +482,7 @@ class Highscores(arcade.View):
                          arcade.color.TEAL, font_size=20, anchor_x="center")
 
     def on_mouse_press(self, _x, _y, _button, _modifiers):
-        arcade.close_window()
+        self.window.close()
         # Transition to next game
         window = MyGame()
         window.setup()
