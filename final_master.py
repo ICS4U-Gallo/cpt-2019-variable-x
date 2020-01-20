@@ -52,6 +52,7 @@ class State():
     PLAYING = 1
     GAME_OVER = 2
 
+
 class Algorithm:
     """class algorithm
     """
@@ -94,7 +95,6 @@ class Algorithm:
                 end = mid - 1
         # element not present in list
         return -1
-
 
 def load_texture_pair(filename: str) -> "SpriteList":
     """
