@@ -295,19 +295,6 @@ class MyGame(arcade.Window):
         arcade.draw_text(output, self.view_left, self.view_bottom,
                          arcade.color.WHITE, 32)
 
-    def scoreboard(self) -> None:
-        '''
-        Function created to calculate the score by using a for loop
-        '''
-        center = SCREEN_WIDTH - 105
-        self._score_board = arcade.SpriteList()
-
-        for num in str(self._score):
-            self._score_board.append(arcade.Sprite(SCORE[num], 1,
-                                                   center_x=center,
-                                                   center_y=420))
-            center += 24
-
     def store_score(self, score: int) -> None:
         """stores the time when game is over
         Args:
@@ -320,54 +307,6 @@ class MyGame(arcade.Window):
             json.dump(data, f)
 
         self._stored_score = True
-
-    def display_score_list(self) -> None:
-        """displays all the score from highest to lowest"""
-
-        self._score_list = arcade.SpriteList()
-        x_position = 100  # x coordinate of best scores on the screen
-        y_position = 430  # y coordinate of the best scores on the screen
-        self._scores_list = []
-        self._five_best = []
-        self._player_rank = 0
-
-        # calling the json file to load the dictionary of scores
-        with open("hack_times.json", "r") as f:
-            data = json.load(f)
-
-        # sort all the scores from highest to lowest
-        for values in data.values():
-            self._sorted_list.append(values)
-            bubblesort(self._sorted_list)
-
-        # remove any repeating scores
-        for num in self._sorted_list:
-            if num not in self._scores_list:
-                self._scores_list.append(num)
-
-        # get the rank of the player by using binary search
-        self._player_rank = binary_search(self._scores_list,
-                                          list(data.values())[-1])
-
-        if len(self._scores_list) < 6:
-            self._five_best = self._scores_list
-        else:
-            self._five_best = self._scores_list[:5]
-
-        for score in self._five_best:
-            if len(str(score)) == 1:
-                for num in str(score):
-                    self._score_list.append()
-                    y_position -= 50
-
-            if len(str(score)) == 2:
-                for num in str(score):
-                    self._score_list.append('images/redstone.jpg', 1,
-                                            center_x=x_position,
-                                            center_y=y_position)
-                    x_position += 24
-                y_position -= 50
-                x_position = 100
 
     def draw_game_over(self):
         """
