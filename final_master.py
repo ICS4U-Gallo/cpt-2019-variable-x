@@ -96,6 +96,7 @@ class Algorithm:
         # element not present in list
         return -1
 
+
 def load_texture_pair(filename: str) -> "SpriteList":
     """
     Load a texture pair, with the second being a mirror image.
@@ -385,7 +386,7 @@ class Game(arcade.Window):
         start_platform1 = Platform.random_platform_generator()
         start_platform1.center_y = SCREEN_HEIGHT//2 - 75
         self._platform_sprites.append(start_platform1)
-        #creates a player object
+        # creates a player object
         self._player = PlayerCharacter()
         self._player.center_x = 55
         self._player.center_y = SCREEN_HEIGHT//2 + 250
@@ -456,11 +457,11 @@ class Game(arcade.Window):
                              20)
             arcade.draw_text("Current Score", SCREEN_WIDTH - 175, 455,
                              arcade.color.YELLOW_ORANGE, 20)
-            
+
             if self._checkpoint is True:
                 texture = self._menus['next']
                 arcade.draw_texture_rectangle(450, self.height//2,
-                                            50, 50, texture, 0)
+                                              50, 50, texture, 0)
             # If statement to compute if there is a new highscore
             self.draw_score_board()
 
@@ -500,7 +501,6 @@ class Game(arcade.Window):
                     menu_view = MenuView()
                     window.show_view(menu_view)
                     arcade.run()
-
 
     def scoreboard(self) -> None:
         '''
@@ -642,7 +642,7 @@ class Game(arcade.Window):
             if self._stored_score is False:
                 self.store_score(self.get_score())
                 self.display_score_list()
-            
+
             if self._score >= 10:
                 self._checkpoint = True
 
