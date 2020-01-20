@@ -280,7 +280,7 @@ class MyGame(arcade.Window):
         arcade.draw_text(health_text, 10 + self.view_left, 650 +
                          self.view_bottom, arcade.color.WHITE, 32)
 
-        score_text = f"Score: {self.score}"
+        score_text = f"Windows Eviscerated: {self.score}"
         arcade.draw_text(score_text, 10 + self.view_left + 600, 650 +
                          self.view_bottom, arcade.color.WHITE, 32)
 
