@@ -3,6 +3,8 @@ import random
 import os
 import json
 from typing import List, Dict
+from subprocess import call
+import Chapter
 
 # dimensions of the screen
 SCREEN_WIDTH = 500
@@ -16,7 +18,8 @@ FRAME_RATE = 7
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
 LEFT_FACING = 1
-Gravity = 2
+Gravity = 2.5
+jump_speed = 2.5
 
 
 class State():
@@ -41,6 +44,7 @@ ready_message = "Objects" + os.sep + "sprites" + os.sep + "Readymessage.png"
 volume = "Objects" + os.sep + "sprites" + os.sep + "soundup.png"
 highscore = "Objects" + os.sep + "sprites" + os.sep + "highscore.png"
 gameover = "Objects" + os.sep + "sprites" + os.sep + "gameover2.png"
+next_chapter = "Objects" + os.sep + "sprites" + os.sep + "next.png"
 
 # Images for the different numbers used in scoring
 SCORE = {
@@ -83,16 +87,16 @@ def binary_search(numbers: List[int], target: int) -> int:
     """
     start = 0
     end = len(numbers) - 1
-    while end >= start: 
+    while end >= start:
         mid = (start+end)//2
-        # Check if target is present at mid 
-        if numbers[mid] == target: 
+        # Check if target is present at mid
+        if numbers[mid] == target:
             return mid
-        # If target is greater, ignore left half 
-        elif target < numbers[mid]: 
+        # If target is greater, ignore left half
+        elif target < numbers[mid]:
             start = mid + 1
-        # If target is smaller, ignore right half 
-        else: 
+        # If target is smaller, ignore right half
+        else:
             end = mid - 1
     # element not present in list
     return -1
@@ -110,13 +114,13 @@ def load_texture_pair(filename: str) -> "SpriteList":
 class PlayerCharacter(arcade.Sprite):
     """ Class PlayerCharacter
         Attrs:
-            character_face_directio (int): face direction of the character 
-            defaulted to right facing
+            character_face_directio (int): face direction of the character
+            defaulted to right facing.
             vel (int): The player's velocity
             dead (bool): Boolean statement used to track the player's state
             gravity_on (bool): Boolean statement to activate gravity
-            walk_textures (List[sprites]): List of different walking textures 
-            for animations
+            walk_textures (List[sprites]): List of different walking textures
+            for animations.
             jump_texture (sprite): Player character jumping texture
     """
 
@@ -151,18 +155,18 @@ class PlayerCharacter(arcade.Sprite):
     # setter for gravity status
     def set_gravity_on(self, value: bool) -> None:
         self._gravity_on = value
-    
+
     # updates the animation of the player
     def update_animation(self, delta_time: float = 1/60) -> None:
         """Updates the animation of the player
-        Args: 
+        Args:
             delta_time (float): speed of the animation
         """
         # Figure out if we need to flip face left or right
         if self.change_x < 0 and self._character_face_direction == RIGHT_FACING:
             self._character_face_direction = LEFT_FACING
         if self.change_x > 0 and self._character_face_direction == LEFT_FACING:
-            self._character_face_direction = RIGHT_FACING        
+            self._character_face_direction = RIGHT_FACING
         # walking animation
         if self.change_x == 0 and self.change_y == 0:
             self._cur_texture += 1
@@ -171,12 +175,12 @@ class PlayerCharacter(arcade.Sprite):
             self.texture = self._walk_textures[self._cur_texture // FRAME_RATE][self._character_face_direction]
 
         if self._vel > 0:
-            self.center_y += 2
+            self.center_y += jump_speed
             self._vel -= 2
             self.texture = self._jump_texture[0]
 
         if self._vel == 0 and self._gravity_on is True:
-            self.center_y -= 2
+            self.center_y -= Gravity
 
     # How many pixels per jump
     def jump(self) -> None:
@@ -193,7 +197,7 @@ class Platform(arcade.Sprite):
     Attrs:
         horizontal_speed(int): speed of the platform
         scored(bool): To track whether if the player gained a point
-        """    
+        """
 
     def __init__(self, image: "sprite") -> None:
         """creates a platform object
@@ -201,7 +205,7 @@ class Platform(arcade.Sprite):
             image(sprite): The texture for the platform sprite
         """
         super().__init__(image)
-        self._horizontal_speed = -4
+        self._horizontal_speed = -4.3
         self._scored = False
 
     @classmethod
@@ -230,38 +234,37 @@ class Game(arcade.Window):
     """ Main class for the game
     Attrs:
         background: texture for the background image. Defaults to None.
-        player_list (List[sprites]): list to store sprites for the player 
+        player_list (List[sprites]): list to store sprites for the player
         character. Defaults to None.
-        platform_sprites (List[sprites]): list to store the platform sprites. 
+        platform_sprites (List[sprites]): list to store the platform sprites.
         Defaults to None.
-        enemy_sprites (List[sprites]): list to store sprites for the enemy 
+        enemy_sprites (List[sprites]): list to store sprites for the enemy
         image. Defauls to None.
-        player: variable to store the call to the Player class. 
+        player: variable to store the call to the Player class.
         Defaults to None.
-        score_board (List[sprites]): list to store the sprites to display 
-        scores. 
-        Defaults to None.
+        score_board (List[sprites]): list to store the sprites to display
+        scores. Defaults to None
         jump (bool): a boolean to check if the user pressed space bar.
         score (int): a variable to store the score. Defaults to None.
-        state: variable used to track the state of the player. Defaults to main 
+        state: variable used to track the state of the player. Defaults to main
         menu.
-        menus (Dict): dictionary to store different texture for the menu 
+        menus (Dict): dictionary to store different texture for the menu
         screen.
         double_jump (bool): a boolean statement to check whether the player
         used double jump. Defaults to False.
-        sorted_list (List[int]): list to store a sorted list of scores from 
+        sorted_list (List[int]): list to store a sorted list of scores from
         highest to lowest. Defaults to empty list
-        stored_score (bool): boolean statement to check if we stored the score. 
+        stored_score (bool): boolean statement to check if we stored the score.
         Defaults to False.
-        sorted_score (bool): boolean statement to check if we sorted the list 
+        sorted_score (bool): boolean statement to check if we sorted the list
         already. Defaults to False.
     """
 
     def __init__(self, width: int, height: int) -> None:
         """
-        Initializer for the game window, note that we need to call setup() on 
+        Initializer for the game window, note that we need to call setup() on
         the game object.
-        Args: 
+        Args:
             width(int): the width of the screen
             height(int): the height of the screen
             title(str): the title of the screen
@@ -286,15 +289,18 @@ class Game(arcade.Window):
                        'ready': arcade.load_texture(ready_message),
                        'gameover': arcade.load_texture(gameover),
                        'play': arcade.load_texture(play),
-                       'highscore': arcade.load_texture(highscore)}
+                       'highscore': arcade.load_texture(highscore),
+                       'next': arcade.load_texture(next_chapter)}
         self._double_jump = False
         self._sorted_list = []
         self._stored_score = False
         self._sorted_score = False
+        self._checkpoint = False
         # for loop to generate 100 enemy sprites
         for _ in range(100):
             self._sprite1 = arcade.Sprite()
-            self._sprite1.texture = arcade.load_texture(file_name=enemy, scale=0.2)
+            self._sprite1.texture = arcade.load_texture(file_name=enemy,
+                                                        scale=0.2)
             self._sprite1.left = 400
             self._sprite1.center_y = random.randrange(200, SCREEN_HEIGHT//2+20)
             self._enemy_sprites.append(self._sprite1)
@@ -366,6 +372,10 @@ class Game(arcade.Window):
 
         return self._player_rank
 
+    # getter for checkpoint state
+    def get_checkpoint_status(self) -> bool:
+        return self._checkpoint
+
     def setup(self) -> None:
         """Sets up sprites and variables for the game"""
 
@@ -393,7 +403,7 @@ class Game(arcade.Window):
             return True
 
         elif index < n:
-            self._enemy_sprites[index].change_x = -4
+            self._enemy_sprites[index].change_x = -4.3
             self._enemy_sprites[index].draw()
 
             if self._enemy_sprites[index].center_x <= 10:
@@ -419,48 +429,55 @@ class Game(arcade.Window):
         self.draw_background()
         self._platform_sprites.draw()
         self._player_list.draw()
-        # calling recursive function 
+        # calling recursive function
         self.draw_enemy_sprites(0)
-
         # What to draw if the game state in on menu
         if self._state == State.MAIN_MENU:
             # Show the main menu
             texture = self._menus['start']
-            arcade.draw_texture_rectangle(self.width//2, self.height//2 + 50, 
+            arcade.draw_texture_rectangle(self.width//2, self.height//2 + 50,
                                           250, 50, texture, 0)
             texture = self._menus['ready']
             arcade.draw_texture_rectangle(self.width//2, self.height//2 + 100,
                                           250, 200, texture, 0)
         elif self._state == State.GAME_OVER:
-            # Draw the game over menu if the player lost and the restart play 
+            # Draw the game over menu if the player lost and the restart play
             # button
             texture = self._menus['gameover']
-            arcade.draw_texture_rectangle(self.width//2, self.height//2 + 25, 
+            arcade.draw_texture_rectangle(self.width//2, self.height//2 + 25,
                                           100, 100, texture)
             texture = self._menus['play']
-            arcade.draw_texture_rectangle(self.width//2, self.height//2 - 50, 
-                                          texture.width, texture.height, 
+            arcade.draw_texture_rectangle(self.width//2, self.height//2 - 50,
+                                          texture.width, texture.height,
                                           texture, 0)
-            arcade.draw_text(f"Congratulations you are number {self.get_player_rank() + 1}", 
-                              10, SCREEN_HEIGHT//2 - 200, arcade.color.BLACK, 25)
-            arcade.draw_text("Top Five", 75, 455, arcade.color.YELLOW_ORANGE, 20)
+
+            arcade.draw_text(f"Congratulations you are number {self.get_player_rank() + 1}",
+                              10, SCREEN_HEIGHT//2 - 200,
+                              arcade.color.BLACK, 25)
+            arcade.draw_text("Top Five", 75, 455, arcade.color.YELLOW_ORANGE,
+                             20)
             arcade.draw_text("Current Score", SCREEN_WIDTH - 175, 455,
                              arcade.color.YELLOW_ORANGE, 20)
+            
+            if self._checkpoint is True:
+                texture = self._menus['next']
+                arcade.draw_texture_rectangle(450, self.height//2,
+                                            50, 50, texture, 0)
             # If statement to compute if there is a new highscore
             self.draw_score_board()
 
     def on_key_press(self, key, key_modifiers) -> None:
-        if key == arcade.key.SPACE and self._state == State.MAIN_MENU: 
-            # If game state is back to playing , just change the state and 
+        if key == arcade.key.SPACE and self._state == State.MAIN_MENU:
+            # If game state is back to playing , just change the state and
             # return
             self._state = State.PLAYING
         if key == arcade.key.SPACE and self._double_jump:
-            # If Space bar is pressed, self.jump is set to true and will allow 
+            # If Space bar is pressed, self.jump is set to true and will allow
             # the player to jump
             self._jump = True
 
     def on_mouse_press(self, x, y, button, modifiers) -> None:
-        # if statement to check whether the user clicks in the required box to 
+        # if statement to check whether the user clicks in the required box to
         # restart game
         if self._state == State.GAME_OVER:
             texture = self._menus['play']
@@ -471,7 +488,17 @@ class Game(arcade.Window):
                     self.setup()
                     self._state = State.MAIN_MENU
                     self._stored_score = False
+                    self._checkpoint = False
                     self._sorted_list = []
+
+        if self._state == State.GAME_OVER and self._checkpoint is True:
+            texture = self._menus['next']
+            x_position = self.width//2
+            y_position = self.height//2 - 50
+            if x_position - texture.width//2 <= x <= x_position + texture.width//2:
+                if y_position - texture.height//2 <= y <= y_position + texture.height//2:
+                    Chapter.chapter4()
+                    os._exit(0)
 
     def scoreboard(self) -> None:
         '''
@@ -481,7 +508,7 @@ class Game(arcade.Window):
         self._score_board = arcade.SpriteList()
 
         for num in str(self._score):
-            self._score_board.append(arcade.Sprite(SCORE[num], 1, 
+            self._score_board.append(arcade.Sprite(SCORE[num], 1,
                                                    center_x=center,
                                                    center_y=420))
             center += 24
@@ -494,7 +521,7 @@ class Game(arcade.Window):
         with open("score.json", "r") as f:
             data = json.load(f)
         # assign the score to the key
-        data[f"user {len(data) + 1}"] = score        
+        data[f"user {len(data) + 1}"] = score
         # opens the file and updates it
         with open("score.json", "w") as f:
             json.dump(data, f)
@@ -502,7 +529,7 @@ class Game(arcade.Window):
         self._stored_score = True
 
     def display_score_list(self) -> None:
-        """displays all the score from highest to lowest"""       
+        """displays all the score from highest to lowest"""
         self._score_list = arcade.SpriteList()
         x_position = 100  # x coordinate of best scores on the screen
         y_position = 430  # y coordinate of the best scores on the screen
@@ -535,8 +562,8 @@ class Game(arcade.Window):
 
             if len(str(score)) == 2:
                 for num in str(score):
-                    self._score_list.append(arcade.Sprite(SCORE[num], 1, 
-                                            center_x=x_position, 
+                    self._score_list.append(arcade.Sprite(SCORE[num], 1,
+                                            center_x=x_position,
                                             center_y=y_position))
                     x_position += 24
                 y_position -= 50
@@ -564,14 +591,14 @@ class Game(arcade.Window):
         if self._state == State.PLAYING:
             self.generate_platform()
             self._player._gravity_on = True
-            
+
             if self._jump:
                 self._player.jump()
                 self._jump = False
-                self._player.center_y -= 2  
+                self._player.center_y -= 2
             # if player is below zero
             if self._player.center_y <= 0:
-                self._state = State.GAME_OVER        
+                self._state = State.GAME_OVER
             if self._player.top > self.height:
                 self._player.top = self.height
             # if player lands on a platform he gains a point
@@ -579,7 +606,7 @@ class Game(arcade.Window):
                 self._score += 1
                 self._platform_sprites[0]._scored = True
             # checking for collision between player and obstacles
-            hit = arcade.check_for_collision_with_list(self._player, 
+            hit = arcade.check_for_collision_with_list(self._player,
                                                        self._enemy_sprites)
             if any(hit):
                 self._state = State.GAME_OVER
@@ -601,16 +628,21 @@ class Game(arcade.Window):
             self._player_list.update_animation()
             self._platform_sprites.update()
             self._enemy_sprites.update()
-        # if state is game over the player is updated, the gravity is deactivated and the score board is called
+        # if state is game over the player is updated, the gravity is
+        # deactivated and the score board is called
         if self._state == State.GAME_OVER:
             self._player.update()
             self._player._gravity_on = False
             self.scoreboard()
+
             if self._stored_score is False:
                 self.store_score(self.get_score())
                 self.display_score_list()
-         
-         
+            
+            if self._score >= 2:
+                self._checkpoint = True
+
+
 def main():
     game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
