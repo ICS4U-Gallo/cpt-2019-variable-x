@@ -58,47 +58,49 @@ SCORE = {
     '8': 'Objects' + os.sep + 'sprites' + os.sep + '8.png',
     '9': 'Objects' + os.sep + 'sprites' + os.sep + '9.png', }
 
+class Algorithm:
 
-def bubblesort(numbers: List[int]) -> List[int]:
-    """bubble sort to sort the list from highest to lowest
-     Args:
-        numbers(List[int]): a list of integers
-    Returns:
-        a sorted list
-    """
-    n = len(numbers)
+    @staticmethod
+    def bubblesort(numbers: List[int]) -> List[int]:
+        """bubble sort to sort the list from highest to lowest
+        Args:
+            numbers(List[int]): a list of integers
+        Returns:
+            a sorted list
+        """
+        n = len(numbers)
 
-    for i in range(n):
-        for j in range(n - i - 1):
-            if numbers[j] < numbers[j + 1]:
-                numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
+        for i in range(n):
+            for j in range(n - i - 1):
+                if numbers[j] < numbers[j + 1]:
+                    numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
 
-    return numbers
+        return numbers
 
-
-def binary_search(numbers: List[int], target: int) -> int:
-    """binsry search to search for the position of the target in the scores list
-    Args:
-        target(int): the number we are looking for
-        numbers(List[int]): a list of integers
-    Returns:
-        the index of the target
-    """
-    start = 0
-    end = len(numbers) - 1
-    while end >= start:
-        mid = (start+end)//2
-        # Check if target is present at mid
-        if numbers[mid] == target:
-            return mid
-        # If target is greater, ignore left half
-        elif target < numbers[mid]:
-            start = mid + 1
-        # If target is smaller, ignore right half
-        else:
-            end = mid - 1
-    # element not present in list
-    return -1
+    @staticmethod
+    def binary_search(numbers: List[int], target: int) -> int:
+        """binsry search to search for the position of the target in the scores list
+        Args:
+            target(int): the number we are looking for
+            numbers(List[int]): a list of integers
+        Returns:
+            the index of the target
+        """
+        start = 0
+        end = len(numbers) - 1
+        while end >= start:
+            mid = (start+end)//2
+            # Check if target is present at mid
+            if numbers[mid] == target:
+                return mid
+            # If target is greater, ignore left half
+            elif target < numbers[mid]:
+                start = mid + 1
+            # If target is smaller, ignore right half
+            else:
+                end = mid - 1
+        # element not present in list
+        return -1
 
 
 def load_texture_pair(filename: str) -> "SpriteList":
@@ -356,18 +358,20 @@ class Game(arcade.Window):
     def get_player_rank(self) -> int:
         scores_list = []
         sorted_list = []
+        algorithm = Algorithm()
+        # opent the score.json file to read the dictionary
         with open("score.json", "r") as f:
             data = json.load(f)
         # sort all the scores from highest to lowest
         for values in data.values():
             sorted_list.append(values)
-            bubblesort(sorted_list)
+            algorithm.bubblesort(sorted_list)
         # remove any repeating scores
         for num in sorted_list:
             if num not in scores_list:
                 scores_list.append(num)
 
-        self._player_rank = binary_search(scores_list, list(data.values())[-1])
+        self._player_rank = algorithm.binary_search(scores_list, list(data.values())[-1])
 
         return self._player_rank
 
@@ -386,7 +390,9 @@ class Game(arcade.Window):
         self._player_list = arcade.SpriteList()
         # create the first platform you see on sreen
         start_platform1 = Platform.random_platform_generator()
+        start_platform1.center_y = SCREEN_HEIGHT//2 - 75
         self._platform_sprites.append(start_platform1)
+        #creates a player object
         self._player = PlayerCharacter()
         self._player.center_x = 55
         self._player.center_y = SCREEN_HEIGHT//2 + 250
@@ -496,7 +502,7 @@ class Game(arcade.Window):
             y_position = self.height//2 - 50
             if x_position - texture.width//2 <= x <= x_position + texture.width//2:
                 if y_position - texture.height//2 <= y <= y_position + texture.height//2:
-                    arcade.close_window()
+                    self.close_window()
                     window = arcade.Window(WIDTH, HEIGHT, "Zombie Invasion")
                     menu_view = MenuView()
                     window.show_view(menu_view)
@@ -539,13 +545,14 @@ class Game(arcade.Window):
         scores_list = []
         five_best = []
         sorted_list = []
+        algorithm = Algorithm()
         # calling the json file to load the dictionary of scores
         with open("score.json", "r") as f:
             data = json.load(f)
         # sort all the scores from highest to lowest
         for values in data.values():
             sorted_list.append(values)
-            bubblesort(sorted_list)
+            algorithm.bubblesort(sorted_list)
         # remove any repeating scores
         for num in sorted_list:
             if num not in scores_list:
@@ -643,7 +650,7 @@ class Game(arcade.Window):
                 self.store_score(self.get_score())
                 self.display_score_list()
             
-            if self._score >= 12:
+            if self._score >= 2:
                 self._checkpoint = True
 
 
