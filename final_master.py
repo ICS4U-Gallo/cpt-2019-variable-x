@@ -643,7 +643,7 @@ class Game(arcade.Window):
                 self.store_score(self.get_score())
                 self.display_score_list()
             
-            if self._score >= 2:
+            if self._score >= 12:
                 self._checkpoint = True
 
 
