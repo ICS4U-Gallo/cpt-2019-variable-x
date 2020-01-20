@@ -87,7 +87,7 @@ class Player(arcade.Sprite):
         are inherited. Not encapsulated since these values are changed often
         and inherited."""
     def __init__(self):
-        self.player_sprite = arcade.Sprite(":resources:/images/animated_characters/male_adventurer/maleAdventurer_idle.png", SPRITE_SCALING_PLAYER)
+        self.player_sprite = arcade.Sprite(":resources:/images/animated_characters/male_person/malePerson_idle.png", SPRITE_SCALING_PLAYER)
         self.player_sprite.center_x = WIDTH / 2
         self.player_sprite.center_y = 70
         self.player_list = arcade.SpriteList()
