@@ -76,7 +76,7 @@ def bubblesort(numbers: List[int]) -> List[int]:
 
     for i in range(n):
         for j in range(n - i - 1):
-            if numbers[j] < numbers[j + 1]:
+            if numbers[j] > numbers[j + 1]:
                 numbers[j], numbers[j+1] = numbers[j+1], numbers[j]
     return numbers
 
@@ -347,7 +347,7 @@ class MyGame(arcade.Window):
             sorted_list.append(values)
             sorted_list2 = bubblesort(sorted_list)
 
-        for i in reversed(range(0, 5)):
+        for i in range(0, 5):
             arcade.draw_text(f"{i + 1}: {sorted_list2[i]} seconds \n",
                              self.view_left + 60,
                              self.view_bottom + 300 - height_decrease,
@@ -415,7 +415,6 @@ class MyGame(arcade.Window):
             game = Game(500, 500)
             game.setup()
             arcade.run()
-
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
