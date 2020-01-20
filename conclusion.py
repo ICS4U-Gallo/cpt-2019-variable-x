@@ -18,7 +18,7 @@ class ConclusionView(arcade.View):
         arcade.draw_text("You're more than just an office employee now...", WIDTH/2, 400, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
         arcade.draw_text("You're a office manager now!", WIDTH/2, 350, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
         arcade.draw_text("We must thank you for completing all the challenges sent at you!", WIDTH/2, 300, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
-        arcade.draw_text("Now it is time to start your first day as a manger.", WIDTH/2, 250, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
+        arcade.draw_text("Now it is time to start your first day as a manager.", WIDTH/2, 250, color = arcade.color.WHITE, font_size = 15, anchor_x="center")
         arcade.draw_text("CLICK TO EXIT", WIDTH/2, 100, color = arcade.color.YELLOW, font_size = 15, anchor_x="center")
     
     def on_mouse_press(self, _x, _y, _button, _modifiers):
