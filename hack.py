@@ -25,7 +25,7 @@ ANTIVIRUS_COUNT = 10
 ANTIVIRUS_SPEED = 6
 SPRITE_SPEED = 0.5
 
-MOVEMENT_SPEED = 10
+MOVEMENT_SPEED = 15
 GRAVITY = 10
 PLAYER_JUMP_SPEED = 25
 
@@ -326,7 +326,7 @@ class MyGame(arcade.Window):
         """
         Draw "You win" across the screen.
         """
-        output = "Door lock successfully hacked."
+        output = "Door pad successfully hacked."
         arcade.draw_text(output, self.view_left, self.view_bottom + 600,
                          arcade.color.GREEN, 54)
 
