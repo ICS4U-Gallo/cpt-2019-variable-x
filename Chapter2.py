@@ -4,7 +4,7 @@ import os
 import random
 import json
 from typing import List, Dict
-from final_master import *
+from Chapter3 import *
 
 # Constants
 SCREEN_WIDTH = 1080

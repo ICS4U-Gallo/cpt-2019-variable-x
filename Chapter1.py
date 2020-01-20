@@ -4,7 +4,7 @@ import timeit
 import json
 from typing import List
 from arcade import *
-from hack import *
+from Chapter2 import *
 
 sprite_scaling = 0.25
 sprite_size = 128 * sprite_scaling
@@ -397,7 +397,7 @@ class Maze(arcade.View):
             self._counter += 1
 
             # If maze generates 3 times, game will transition to results
-            if self._counter == 1:
+            if self._counter == 3:
                 global time
                 time = self._time
                 escaped_building = EscapedBuilding()

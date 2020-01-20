@@ -3,7 +3,7 @@ import random
 import os
 import json
 from typing import List, Dict
-from zombie_invasion import *
+from Chapter4 import *
 
 # dimensions of the screen
 SCREEN_WIDTH = 500
@@ -496,7 +496,7 @@ class Game(arcade.Window):
             y_position = self.height//2 - 50
             if x_position - texture.width//2 <= x <= x_position + texture.width//2:
                 if y_position - texture.height//2 <= y <= y_position + texture.height//2:
-                    self.close_window()
+                    arcade.close_window()
                     window = arcade.Window(WIDTH, HEIGHT, "Zombie Invasion")
                     menu_view = MenuView()
                     window.show_view(menu_view)
