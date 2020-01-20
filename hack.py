@@ -326,7 +326,7 @@ class MyGame(arcade.Window):
         """
         Draw "You win" across the screen.
         """
-        output = "Mainframe successfully hacked."
+        output = "Door lock successfully hacked."
         arcade.draw_text(output, self.view_left, self.view_bottom + 600,
                          arcade.color.GREEN, 54)
 
