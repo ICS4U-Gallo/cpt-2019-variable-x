@@ -149,54 +149,56 @@ def make_maze_recursion(maze_width: int, maze_height: int) -> List[int]:
     return maze
 
 
-def merge_sort(numbers: List[int]) -> List[int]:
-    """Sorts the items in a list
-    Args:
-        numbers: list of integers
-    Returns:
-        the list of integers from smallest to largest value
-    """
-    # merge sort
-    # Base case
-    if len(numbers) == 1:
-        return numbers
+class Algorithm:
+    @staticmethod
+    def merge_sort(numbers: List[int]) -> List[int]:
+        """Sorts the items in a list
+        Args:
+            numbers: list of integers
+        Returns:
+            the list of integers from smallest to largest value
+        """
+        # merge sort
+        # Base case
+        if len(numbers) == 1:
+            return numbers
 
-    midpoint = len(numbers) // 2
+        midpoint = len(numbers) // 2
 
-    # Two recursive steps
-    # Mergesort left
-    left_side = merge_sort(numbers[:midpoint])
-    # Mergesort right
-    right_side = merge_sort(numbers[midpoint:])
-    # Merge the two together
-    sorted_list = []
+        # Two recursive steps
+        # Mergesort left
+        left_side = Algorithm.merge_sort(numbers[:midpoint])
+        # Mergesort right
+        right_side = Algorithm.merge_sort(numbers[midpoint:])
+        # Merge the two together
+        sorted_list = []
 
-    # Loop through both lists with two markers
-    left_marker = 0
-    right_marker = 0
-    while left_marker < len(left_side) and right_marker < len(right_side):
-        # If left value less than right value, add right value to sorted
-        # increase left marker
-        if left_side[left_marker] < right_side[right_marker]:
-            sorted_list.append(left_side[left_marker])
-            left_marker += 1
-        # If right value less than left value, add left value to sorted
-        # increase right marker
-        else:
+        # Loop through both lists with two markers
+        left_marker = 0
+        right_marker = 0
+        while left_marker < len(left_side) and right_marker < len(right_side):
+            # If left value less than right value, add right value to sorted
+            # increase left marker
+            if left_side[left_marker] < right_side[right_marker]:
+                sorted_list.append(left_side[left_marker])
+                left_marker += 1
+            # If right value less than left value, add left value to sorted
+            # increase right marker
+            else:
+                sorted_list.append(right_side[right_marker])
+                right_marker += 1
+
+        # Create a while loop to gather the rest of the values from either list
+        while right_marker < len(right_side):
             sorted_list.append(right_side[right_marker])
             right_marker += 1
 
-    # Create a while loop to gather the rest of the values from either list
-    while right_marker < len(right_side):
-        sorted_list.append(right_side[right_marker])
-        right_marker += 1
+        while left_marker < len(left_side):
+            sorted_list.append(left_side[left_marker])
+            left_marker += 1
 
-    while left_marker < len(left_side):
-        sorted_list.append(left_side[left_marker])
-        left_marker += 1
-
-    # Return the sorted list
-    return sorted_list
+        # Return the sorted list
+        return sorted_list
 
 
 # Inheritance
@@ -459,7 +461,7 @@ class Highscores(arcade.View):
         # Displaying the scores from shortest to longest times
         for values in data.values():
             sorted_list.append(values)
-            sorted_list2 = merge_sort(sorted_list)
+            sorted_list2 = Algorithm.merge_sort(sorted_list)
         arcade.draw_text(f"Shortest Times: \n", screen_width / 2,
                          screen_height - 200,
                          arcade.color.TEAL, font_size=18, anchor_x="center")
