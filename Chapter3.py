@@ -253,6 +253,8 @@ class Game(arcade.Window):
         Defaults to False.
         sorted_score (bool): boolean statement to check if we sorted the list
         already. Defaults to False.
+        checkpoint (bool): boolean statement to check if the player reached 
+        checkpoint.
     """
 
     def __init__(self, width: int, height: int) -> None:
@@ -270,7 +272,7 @@ class Game(arcade.Window):
         self._platform_sprites = None
         self._enemy_sprites = arcade.SpriteList()
         self._player = None
-        # Score texture
+        # Score texture for current score
         self._score_board = None
         self._score_list = None
         # A boolean to check if the user pressed space bar
@@ -347,6 +349,10 @@ class Game(arcade.Window):
     # setter for stored score status
     def set_sorted_score_status(self, value: bool) -> None:
         self._sorted_score = value
+
+    # getter for checkpoint status
+    def get_checkpoint_status(self) -> bool:
+        return self._checkpoint
 
     # getter for player rank
     def get_player_rank(self) -> int:
