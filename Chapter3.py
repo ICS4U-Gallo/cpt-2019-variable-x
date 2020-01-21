@@ -58,7 +58,7 @@ class Algorithm:
     """
     @staticmethod
     def bubblesort(numbers: List[int]) -> List[int]:
-        """bubble sort to sort the list from highest to lowest
+        """bubble sort to sort scores from highest to lowest
         Args:
             numbers(List[int]): a list of integers
         Returns:
@@ -73,12 +73,12 @@ class Algorithm:
 
     @staticmethod
     def binary_search(numbers: List[int], target: int) -> int:
-        """binary search to search for the position of the target in the scores list
+        """binary search to search for the position of the current score in the scores list.
         Args:
-            target(int): the number we are looking for
-            numbers(List[int]): a list of integers
+            target(int): the number we are looking for.
+            numbers(List[int]): a list of integers.
         Returns:
-            the index of the target
+            the index of the target.
         """
         start = 0
         end = len(numbers) - 1
@@ -97,6 +97,7 @@ class Algorithm:
         return -1
 
 
+#loads the file for the character animation
 def load_texture_pair(filename: str) -> "SpriteList":
     """
     Load a texture pair, with the second being a mirror image.
@@ -109,7 +110,7 @@ def load_texture_pair(filename: str) -> "SpriteList":
 class PlayerCharacter(arcade.Sprite):
     """ Class PlayerCharacter
         Attrs:
-            character_face_directio (int): face direction of the character
+            character_face_direction (int): face direction of the character
             defaulted to right facing.
             vel (int): The player's velocity
             dead (bool): Boolean statement used to track the player's state
@@ -148,7 +149,7 @@ class PlayerCharacter(arcade.Sprite):
         return self._gravity_on
 
     # setter for gravity status
-    def set_gravity_on(self, value: bool) -> None:
+    def set_gravity_status(self, value: bool) -> None:
         self._gravity_on = value
 
     # updates the animation of the player
@@ -191,7 +192,7 @@ class Platform(arcade.Sprite):
     """class platform
     Attrs:
         horizontal_speed(int): speed of the platform
-        scored(bool): To track whether if the player gained a point
+        scored(bool): To know if the player landed on the platform
         """
 
     def __init__(self, image: "sprite") -> None:
@@ -597,11 +598,11 @@ class Game(arcade.Window):
         This a function to update all the images on screen before being drawn
         """
         self._player_list.update_animation()
-
+        # if the state is playing, generate new platform and turn on gravity.
         if self._state == State.PLAYING:
             self.generate_platform()
             self._player._gravity_on = True
-
+            # self._jump is true, jump is set back to false.
             if self._jump:
                 self._player.jump()
                 self._jump = False
@@ -644,11 +645,11 @@ class Game(arcade.Window):
             self._player.update()
             self._player._gravity_on = False
             self.scoreboard()
-
+            # checking if the score has been stored yet.
             if self._stored_score is False:
                 self.store_score(self.get_score())
                 self.display_score_list()
-
+            # if score is higher checkpoint is reached.
             if self._score >= 10:
                 self._checkpoint = True
 
