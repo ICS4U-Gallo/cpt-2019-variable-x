@@ -48,7 +48,7 @@ class State():
     '''
     First class State() to create different game status of the player
     '''
-    MAIN_MENU = 0
+    MAIN_MENU = 0  # class variables
     PLAYING = 1
     GAME_OVER = 2
 
@@ -97,7 +97,7 @@ class Algorithm:
         return -1
 
 
-#loads the file for the character animation
+# loads the file for the character animation
 def load_texture_pair(filename: str) -> "SpriteList":
     """
     Load a texture pair, with the second being a mirror image.
@@ -254,8 +254,8 @@ class Game(arcade.Window):
         Defaults to False.
         sorted_score (bool): boolean statement to check if we sorted the list
         already. Defaults to False.
-        checkpoint (bool): boolean statement to check if the player reached 
-        checkpoint.
+        checkpoint (bool): boolean statement to check if the player reached
+        checkpoint. Defaults to False.
     """
 
     def __init__(self, width: int, height: int) -> None:
@@ -290,7 +290,7 @@ class Game(arcade.Window):
                        'highscore': arcade.load_texture(highscore),
                        'next': arcade.load_texture(next_chapter)}
         self._double_jump = False
-        self._sorted_list = []
+        self._sorted_list: List[int] = []
         self._stored_score = False
         self._sorted_score = False
         self._checkpoint = False
@@ -357,8 +357,8 @@ class Game(arcade.Window):
 
     # getter for player rank
     def get_player_rank(self) -> int:
-        scores_list = []
-        sorted_list = []
+        scores_list: List[int] = []
+        sorted_list: List[int] = []
         algorithm = Algorithm()
         # opent the score.json file to read the dictionary
         with open("score.json", "r") as f:
@@ -407,7 +407,6 @@ class Game(arcade.Window):
 
         if index > n:  # base case
             return True
-
         elif index < n:
             self._enemy_sprites[index].change_x = -4.3
             self._enemy_sprites[index].draw()
@@ -484,7 +483,7 @@ class Game(arcade.Window):
 
     def on_mouse_press(self, x, y, button, modifiers) -> None:
         # if statement to check whether the user clicks in the required box to
-        # restart game
+        # restart game and setup everything again.
         if self._state == State.GAME_OVER:
             texture = self._menus['play']
             x_position = self.width//2
@@ -542,9 +541,9 @@ class Game(arcade.Window):
         self._score_list = arcade.SpriteList()
         x_position = 100  # x coordinate of best scores on the screen
         y_position = 430  # y coordinate of the best scores on the screen
-        scores_list = []
-        five_best = []
-        sorted_list = []
+        scores_list: List[int] = []
+        five_best: List[int] = []
+        sorted_list: List[int] = []
         algorithm = Algorithm()
         # calling the json file to load the dictionary of scores
         with open("score.json", "r") as f:
@@ -654,6 +653,7 @@ class Game(arcade.Window):
                 self._checkpoint = True
 
 
+# main function to call the main class
 def main():
     game = Game(SCREEN_WIDTH, SCREEN_HEIGHT)
     game.setup()
